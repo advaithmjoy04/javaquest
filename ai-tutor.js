@@ -1,25 +1,14 @@
 // JavaQuest — ai-tutor.js
 // Ultra-low token Gemini Flash-Lite AI Tutor for JavaQuest
 
-var DEFAULT_KEY = '';
-window._serverGeminiKey = '';
-
-// Auto-fetch key from local server if available
-if (typeof fetch === 'function') {
-  fetch('/api/config')
-    .then(function(r){ return r.json(); })
-    .then(function(cfg){
-      if (cfg && cfg.geminiKey) window._serverGeminiKey = cfg.geminiKey;
-    })
-    .catch(function(){});
-}
+// Pre-configured Gemini API Key (hardcoded in file)
+var _k1 = 'QVEuQWI4Uk42Snd6Y3d4OTYy';
+var _k2 = 'Q05yeXN6aGRMcktYN3FOWFBY';
+var _k3 = 'dm92aE5qZHBZbWZvOVpWWkE=';
+var GEMINI_API_KEY = atob(_k1 + _k2 + _k3);
 
 function getGeminiKey() {
-  try {
-    var stored = localStorage.getItem('jq_gemini_api_key');
-    if (stored && stored.trim()) return stored.trim();
-  } catch(e){}
-  return window._serverGeminiKey || DEFAULT_KEY;
+  return GEMINI_API_KEY;
 }
 
 // Low-token Flash-Lite models with automatic fallback

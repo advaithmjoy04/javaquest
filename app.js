@@ -1872,24 +1872,6 @@ document.addEventListener('DOMContentLoaded', function(){
   var chi=ge('chat-input');
   if(chi)chi.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChatMessage();}});
 
-  // Settings custom Gemini API key save
-  var skb=ge('save-gemini-key-btn');
-  if(skb){
-    skb.addEventListener('click', function(){
-      var inp = ge('gemini-key-input');
-      if (inp) {
-        var v = inp.value.trim();
-        if (v) {
-          localStorage.setItem('jq_gemini_api_key', v);
-          toast('Custom Gemini API key saved! 🔑');
-        } else {
-          localStorage.removeItem('jq_gemini_api_key');
-          toast('Using default Gemini Flash-Lite key ⚡');
-        }
-      }
-    });
-  }
-
   // ── BOOT ──────────────────────────────────────────────────────
   try {
     var session = sbRestoreSession();
