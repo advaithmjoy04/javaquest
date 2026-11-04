@@ -1169,8 +1169,56 @@ function executeJava(code, stdin) {
     return res.json();
   })
   .catch(function(err){
-    // 2. Client-side fallback interpreter (offline / static hosting)
+    // 2. Second priority: Online deployment (e.g. Vercel) — run via ultra-fast Gemini Flash-Lite compiler engine
+    var apiKey = (typeof getGeminiKey === 'function') ? getGeminiKey() : null;
+    if (apiKey) {
+      return executeJavaWithAI(code, stdin, apiKey).catch(function(aiErr){
+        console.warn('AI compilation fallback failed, trying client interpreter:', aiErr);
+        return runClientJavaInterpreter(code, stdin);
+      });
+    }
+    // 3. Client-side fallback interpreter
     return runClientJavaInterpreter(code, stdin);
+  });
+}
+
+function executeJavaWithAI(code, stdin, apiKey) {
+  var prompt = 'Act as an OpenJDK Java compiler and runtime simulator. '
+    + 'Simulate execution of the following Java program accurately. '
+    + (stdin ? 'Provide standard input: ' + JSON.stringify(stdin) + '. ' : '')
+    + 'Return ONLY a raw JSON object matching this schema without markdown or formatting: '
+    + '{"stdout": "<full standard output string>", "stderr": "<compile or runtime error message, or empty string>", "code": 0}. '
+    + 'If compilation or syntax error occurs, set code to 1 and put error in stderr.\\n\\nJava Code:\\n' + code;
+
+  var url = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-3.5-flash-lite:generateContent?key=' + apiKey;
+  return fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.1,
+        maxOutputTokens: 1000
+      }
+    })
+  })
+  .then(function(res){
+    if (!res.ok) throw new Error('AI Compiler HTTP ' + res.status);
+    return res.json();
+  })
+  .then(function(data){
+    var text = data && data.candidates && data.candidates[0] && data.candidates[0].content && data.candidates[0].content.parts && data.candidates[0].content.parts[0] && data.candidates[0].content.parts[0].text;
+    if (!text) throw new Error('No output from AI compiler');
+    var clean = text.replace(/```json\\s*/gi, '').replace(/```\\s*/g, '').trim();
+    var parsed = JSON.parse(clean);
+    return {
+      run: {
+        stdout: parsed.stdout || '',
+        stderr: parsed.stderr || '',
+        code: (typeof parsed.code === 'number') ? parsed.code : 0
+      },
+      compile: (parsed.code !== 0 && parsed.stderr) ? { stderr: parsed.stderr, code: parsed.code } : null
+    };
   });
 }
 
