@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "JavaQuest — Gamified Java Learning Platform with 24-module roadmap, native Java compiler, Supabase authentication & database, and Gemini Flash-Lite AI tutor.",
   "scripts": {
-    "start": "node server.js"
+    "start": "node local-server.js",
+    "dev": "node local-server.js"
   },
   "keywords": [
     "java",
