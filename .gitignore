@@ -1,0 +1,18 @@
+# Dependency & build files
+node_modules/
+dist/
+build/
+
+# Scratch & temporary test scripts
+scratch/
+test_*.js
+verify_*.js
+*.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# Environment variables
+.env
+.env.local

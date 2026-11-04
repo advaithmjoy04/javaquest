@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co https://emkc.org https://generativelanguage.googleapis.com; img-src 'self' data:;">
+  <title>JavaQuest — Learn Java Like a Game</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<!-- ====== NAVBAR ====== -->
+<nav class="navbar" id="navbar" style="display:none">
+  <div class="nav-logo" id="nav-logo-btn" style="cursor:pointer">
+    <span class="logo-icon">☕</span>
+    <span class="logo-text">Java<span class="logo-accent">Quest</span></span>
+  </div>
+  <div class="nav-links">
+    <button class="nav-btn" id="nav-home">    <span class="nav-icon">🏠</span><span class="nav-label">Home</span></button>
+    <button class="nav-btn" id="nav-map">     <span class="nav-icon">🗺️</span><span class="nav-label">Map</span></button>
+    <button class="nav-btn" id="nav-compiler"><span class="nav-icon">💻</span><span class="nav-label">Code</span></button>
+    <button class="nav-btn" id="nav-badges">  <span class="nav-icon">🏆</span><span class="nav-label">Badges</span></button>
+    <button class="nav-btn" id="nav-avatar">  <span class="nav-icon">🎨</span><span class="nav-label">Avatar</span></button>
+    <button class="nav-btn" id="nav-settings"><span class="nav-icon">⚙️</span><span class="nav-label">Settings</span></button>
+  </div>
+  <div class="nav-stats">
+    <div class="stat-chip diff-chip" id="nav-diff-chip">🌱 Beginner</div>
+    <div class="stat-chip level-chip"><span id="nav-level-icon">🌱</span><span id="nav-level">Lv.1</span></div>
+    <div class="stat-chip xp-chip"><div class="xp-bar-mini"><div class="xp-fill-mini" id="xp-fill-mini"></div></div><span id="nav-xp">0 XP</span></div>
+    <div class="stat-chip streak-chip"><span class="flame-anim">🔥</span><span id="nav-streak">0</span></div>
+    <div class="stat-chip hearts-chip"><span id="nav-hearts">❤️❤️❤️</span></div>
+  </div>
+</nav>
+
+<main class="main-content" id="main-content">
+
+<!-- ====== AUTH SCREEN (login / signup) ====== -->
+<section class="screen active" id="screen-auth">
+  <div class="login-bg">
+    <div class="login-card">
+      <div class="login-logo-wrap">
+        <span class="login-logo-icon">☕</span>
+      </div>
+      <h1 class="login-title">Welcome to <span class="logo-accent">JavaQuest</span></h1>
+      <p class="login-subtitle">Master Java through games, challenges & AI tutoring</p>
+
+      <!-- Tab switcher -->
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="tab-signin">Sign In</button>
+        <button class="auth-tab"        id="tab-signup">Create Account</button>
+      </div>
+
+      <!-- Sign-in form -->
+      <div class="auth-form" id="form-signin">
+        <input type="email"    id="si-email"    class="login-input" placeholder="your@email.com" autocomplete="email"/>
+        <input type="password" id="si-password" class="login-input" placeholder="Password" autocomplete="current-password"/>
+        <div class="auth-error hidden" id="si-error"></div>
+        <button class="btn-primary btn-login" id="si-btn">🔑 Sign In</button>
+        <div class="auth-divider"><span>or play without account</span></div>
+        <button type="button" class="btn-guest" id="guest-btn">🎮 Play as Guest (Local Mode)</button>
+      </div>
+
+      <!-- Sign-up form (hidden by default) -->
+      <div class="auth-form hidden" id="form-signup">
+        <input type="text"     id="su-name"     class="login-input" placeholder="Your hero name" maxlength="30" autocomplete="username"/>
+        <input type="email"    id="su-email"    class="login-input" placeholder="your@email.com" autocomplete="email"/>
+        <input type="password" id="su-password" class="login-input" placeholder="Password (min 6 chars)" autocomplete="new-password" minlength="6"/>
+
+        <!-- Difficulty selection -->
+        <div class="diff-label">Choose your level:</div>
+        <div class="diff-cards" id="diff-cards">
+          <div class="diff-card selected" data-diff="beginner">
+            <div class="diff-icon">🌱</div>
+            <div class="diff-name">Beginner</div>
+            <div class="diff-desc">New to Java — start from zero</div>
+            <div class="diff-modules">Modules B1–B8 + Capstone 1</div>
+          </div>
+          <div class="diff-card" data-diff="intermediate">
+            <div class="diff-icon">🔥</div>
+            <div class="diff-name">Intermediate</div>
+            <div class="diff-desc">OOP, Streams & Database</div>
+            <div class="diff-modules">Modules B1–I8 + Capstone 2</div>
+          </div>
+          <div class="diff-card" data-diff="advanced">
+            <div class="diff-icon">⚡</div>
+            <div class="diff-name">Advanced</div>
+            <div class="diff-desc">JVM, Virtual Threads & Spring Boot</div>
+            <div class="diff-modules">All 24 Modules + Capstone 3</div>
+          </div>
+        </div>
+
+        <!-- Skin picker -->
+        <div class="login-skin-label">Pick your avatar skin:</div>
+        <div class="login-skin-row" id="login-skin-row"></div>
+
+        <div class="auth-error hidden" id="su-error"></div>
+        <button class="btn-primary btn-login" id="su-btn">🚀 Create Account & Play!</button>
+        <div class="auth-divider"><span>or play without account</span></div>
+        <button type="button" class="btn-guest" id="guest-btn-su">🎮 Play as Guest (Local Mode)</button>
+      </div>
+
+      <div class="auth-loading hidden" id="auth-loading">
+        <div class="auth-spinner"></div><span>Loading…</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== HOME SCREEN ====== -->
+<section class="screen" id="screen-home">
+  <div class="home-container">
+    <div class="home-hero glass-card">
+      <div class="hero-avatar-wrap" id="hero-avatar-wrap" title="Customize Avatar">
+        <div class="avatar-display medium" id="avatar-display-home"></div>
+        <div class="hero-edit-hint">✏️ Edit</div>
+      </div>
+      <div class="hero-info">
+        <h1 class="hero-greeting" id="hero-greeting">Hello, JavaLearner! 👋</h1>
+        <div class="diff-badge-home" id="diff-badge-home">🌱 Beginner Path</div>
+        <div class="xp-bar-container">
+          <div class="xp-label-row">
+            <span id="home-level-label">Level 1 — Novice 🌱</span>
+            <span id="home-xp-label">0 / 150 XP</span>
+          </div>
+          <div class="xp-bar"><div class="xp-fill" id="xp-fill-home"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-icon">🔥</div><div class="stat-value" id="home-streak">0</div><div class="stat-label">Day Streak</div></div>
+      <div class="stat-card"><div class="stat-icon">⭐</div><div class="stat-value" id="home-xp">0</div><div class="stat-label">Total XP</div></div>
+      <div class="stat-card"><div class="stat-icon">📚</div><div class="stat-value" id="home-lessons">0</div><div class="stat-label">Lessons Done</div></div>
+      <div class="stat-card"><div class="stat-icon">🏆</div><div class="stat-value" id="home-badges">0</div><div class="stat-label">Badges</div></div>
+    </div>
+    <div class="daily-card glass-card">
+      <div class="daily-header">
+        <span class="daily-badge-tag">⚡ Daily Quest</span>
+        <span class="daily-reward-tag">+50 XP</span>
+      </div>
+      <p class="daily-text">Complete any lesson or challenge today!</p>
+      <button class="btn-primary" id="daily-quest-btn">Start Daily Quest →</button>
+    </div>
+    <div class="continue-section">
+      <h2 class="section-title">Continue Learning</h2>
+      <div class="continue-card glass-card" id="continue-card" style="cursor:pointer">
+        <div class="continue-module-icon" id="continue-icon">☕</div>
+        <div class="continue-info">
+          <div class="continue-title" id="continue-title">Getting Started</div>
+          <div class="continue-sub" id="continue-subtitle">Click to begin!</div>
+          <div class="mini-progress-row">
+            <div class="mini-progress-bar"><div class="mini-progress-fill" id="continue-progress-fill"></div></div>
+            <span id="continue-progress-label">0%</span>
+          </div>
+        </div>
+        <div class="continue-arrow">→</div>
+      </div>
+    </div>
+    <div class="quick-links">
+      <h2 class="section-title">Quick Actions</h2>
+      <div class="quick-grid">
+        <div class="quick-card" id="qc-map"><span>🗺️</span><div>Learning Map</div></div>
+        <div class="quick-card" id="qc-compiler"><span>💻</span><div>Code Playground</div></div>
+        <div class="quick-card" id="qc-badges"><span>🏆</span><div>My Badges</div></div>
+        <div class="quick-card" id="qc-avatar"><span>🎨</span><div>My Avatar</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== MAP SCREEN ====== -->
+<section class="screen" id="screen-map">
+  <div class="map-container">
+    <div class="map-header">
+      <h1>🗺️ Java Learning Map</h1>
+      <p id="map-subtext">Complete modules in order to unlock new adventures!</p>
+    </div>
+    <div class="diff-path-banner" id="diff-path-banner"></div>
+    <div class="module-path" id="module-path"></div>
+  </div>
+</section>
+
+<!-- ====== LESSON SCREEN ====== -->
+<section class="screen" id="screen-lesson">
+  <div class="lesson-container">
+    <div class="lesson-header">
+      <button class="btn-back" id="lesson-back-btn">← Back to Map</button>
+      <div class="lesson-title-block">
+        <span class="lesson-module-tag" id="lesson-module-tag">Module</span>
+        <h2 class="lesson-title" id="lesson-title">Lesson Title</h2>
+      </div>
+      <div class="lesson-meta">
+        <div class="slide-counter" id="slide-counter">1 / 4</div>
+        <div class="lesson-xp-badge" id="lesson-xp-badge">+30 XP</div>
+      </div>
+    </div>
+    <div class="lesson-progress-bar-wrap">
+      <div class="lesson-progress-bar"><div class="lesson-progress-fill" id="lesson-progress-fill"></div></div>
+    </div>
+    <div class="slide-area" id="slide-area"></div>
+    <div class="lesson-nav">
+      <button class="btn-secondary" id="btn-prev-slide">← Previous</button>
+      <div class="slide-dots" id="slide-dots"></div>
+      <button class="btn-primary" id="btn-next-slide">Next →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ====== CHALLENGE SCREEN ====== -->
+<section class="screen" id="screen-challenge">
+  <div class="challenge-container">
+    <div class="challenge-header">
+      <button class="btn-back" id="challenge-back-btn">← Back</button>
+      <div class="challenge-title-block">
+        <span class="challenge-tag-badge">⚔️ Challenge</span>
+        <h2 id="challenge-module-title">Challenge</h2>
+      </div>
+      <div class="hearts-display">
+        <span class="heart" id="heart-1">❤️</span>
+        <span class="heart" id="heart-2">❤️</span>
+        <span class="heart" id="heart-3">❤️</span>
+      </div>
+    </div>
+    <div class="challenge-prog-wrap">
+      <div class="challenge-progress-bar"><div class="challenge-progress-fill" id="challenge-progress-fill"></div></div>
+      <span class="question-counter" id="question-counter">1 / 5</span>
+    </div>
+    <div class="question-area" id="question-area"></div>
+    <div class="challenge-actions" id="challenge-actions">
+      <button class="btn-primary btn-check" id="btn-check-answer">Check Answer ✓</button>
+    </div>
+    <div class="answer-feedback hidden" id="answer-feedback">
+      <div class="feedback-inner">
+        <div class="feedback-icon" id="feedback-icon">✅</div>
+        <div class="feedback-right">
+          <div class="feedback-result" id="feedback-result">Correct!</div>
+          <div class="feedback-explanation" id="feedback-explanation"></div>
+        </div>
+      </div>
+      <button class="btn-primary" id="btn-next-question">Next Question →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ====== CODING CHALLENGE SCREEN (ATTEMPT-BASED SCORING) ====== -->
+<section class="screen" id="screen-coding">
+  <div class="coding-screen-container">
+    <div class="coding-header">
+      <button class="btn-back" id="coding-back-btn">← Back to Map</button>
+      <div class="coding-title-block">
+        <span class="code-level-tag" id="coding-module-tag">B1 • Coding Challenge</span>
+        <h2 id="coding-task-title">Task Title</h2>
+      </div>
+      <!-- Attempt Box -->
+      <div class="attempt-badge" id="coding-attempt-badge">
+        <span class="attempt-icon">🎯</span>
+        <span id="coding-attempt-label">Attempt 1</span>
+      </div>
+    </div>
+
+    <div class="coding-workspace" id="coding-workspace">
+      <!-- Left: Instructions & Hints -->
+      <div class="coding-instructions glass-card" id="coding-instructions">
+        <h3>📝 Problem Description</h3>
+        <div class="coding-prompt" id="coding-prompt"></div>
+
+        <div class="expected-box">
+          <div class="expected-label">Expected Output:</div>
+          <pre id="coding-expected-output"></pre>
+        </div>
+
+        <div class="hint-section" id="coding-hint-section">
+          <button class="btn-hint" id="coding-hint-btn">💡 Need a Hint?</button>
+          <div class="hint-box hidden" id="coding-hint-box"></div>
+        </div>
+      </div>
+
+      <!-- Horizontal Resizer Gutter -->
+      <div class="split-gutter split-gutter-h" id="coding-resizer-h" title="Drag to resize panels">
+        <div class="gutter-handle"></div>
+      </div>
+
+      <!-- Right: Editor & Test Runner -->
+      <div class="coding-editor-panel glass-card" id="coding-editor-panel">
+        <div class="coding-editor-toolbar">
+          <span class="editor-lang-badge">☕ Solution.java</span>
+          <button class="btn-secondary btn-sm" id="coding-reset-btn">↺ Reset Code</button>
+          <button class="btn-secondary btn-sm" id="coding-expand-btn" title="Toggle tall editor view">⛶ Expand Editor</button>
+          <div style="flex:1"></div>
+          <button class="btn-run" id="coding-submit-btn">▶ Submit & Run Tests</button>
+        </div>
+        <textarea id="coding-editor" class="code-editor" spellcheck="false"></textarea>
+
+        <!-- Vertical Resizer Gutter between Editor & Test Results -->
+        <div class="split-gutter split-gutter-v" id="coding-resizer-v" title="Drag to resize editor & test results">
+          <div class="gutter-handle"></div>
+        </div>
+
+        <!-- Test Case Results -->
+        <div class="test-results-panel" id="test-results-panel">
+          <div class="test-results-header" id="test-results-toggle-header" style="cursor:pointer" title="Click to collapse or expand test results console">
+            <div style="display:flex;align-items:center;gap:.5rem">
+              <span id="test-collapse-icon">▼</span>
+              <span>🧪 Test Results</span>
+            </div>
+            <span class="test-status-pill" id="test-overall-status">Not submitted</span>
+          </div>
+          <div class="test-cases-list" id="test-cases-list">
+            <div class="test-placeholder">Click "Submit & Run Tests" to verify your solution against test cases.</div>
+          </div>
+          <div class="test-feedback-box hidden" id="test-feedback-box">
+            <div class="feedback-result" id="test-result-title"></div>
+            <div class="feedback-explanation" id="test-result-desc"></div>
+            <button class="btn-primary" id="coding-continue-btn">Continue →</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== COMPILER SCREEN ====== -->
+<section class="screen" id="screen-compiler">
+  <div class="compiler-container">
+    <div class="compiler-header">
+      <h1>💻 Java Playground</h1>
+      <p>Write and run real Java code instantly!</p>
+    </div>
+    <div class="compiler-templates">
+      <span class="template-label">Templates:</span>
+      <button class="btn-template" id="tpl-hello">Hello World</button>
+      <button class="btn-template" id="tpl-variables">Variables</button>
+      <button class="btn-template" id="tpl-ifelse">If/Else</button>
+      <button class="btn-template" id="tpl-loops">Loops</button>
+      <button class="btn-template" id="tpl-arrays">Arrays</button>
+      <button class="btn-template" id="tpl-methods">Methods</button>
+      <button class="btn-template" id="tpl-oop">OOP Class</button>
+      <button class="btn-template" id="tpl-scanner">User Input</button>
+    </div>
+    <div class="compiler-layout" id="compiler-layout">
+      <div class="editor-panel" id="compiler-editor-panel">
+        <div class="editor-toolbar">
+          <span class="editor-lang-badge">☕ Java</span>
+          <div style="flex:1"></div>
+          <button class="btn-run" id="run-btn">▶ Run Code</button>
+        </div>
+        <textarea id="code-editor" class="code-editor" spellcheck="false"></textarea>
+      </div>
+
+      <!-- Horizontal Resizer Gutter -->
+      <div class="split-gutter split-gutter-h" id="compiler-resizer-h" title="Drag to resize editor & output">
+        <div class="gutter-handle"></div>
+      </div>
+
+      <div class="output-panel" id="compiler-output-panel">
+        <div class="output-toolbar">
+          <span>📤 Output</span>
+          <button class="btn-clear-out" id="clear-output-btn">Clear</button>
+        </div>
+        <div class="output-area" id="output-area">
+          <div class="output-placeholder">Click ▶ Run Code to execute your Java program</div>
+        </div>
+        <div class="compiler-tips">
+          <strong>💡 Tips:</strong> Class must be named <code>Main</code>. Use <code>System.out.println()</code>. Press <strong>Ctrl+Enter</strong> to run.
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== AVATAR SCREEN ====== -->
+<section class="screen" id="screen-avatar">
+  <div class="avatar-container">
+    <div class="avatar-screen-header">
+      <h1>🎨 Customize Your Avatar</h1>
+      <p>Make your Java hero uniquely yours!</p>
+    </div>
+    <div class="avatar-editor">
+      <div class="avatar-preview-col">
+        <div class="avatar-preview-card glass-card">
+          <div class="avatar-display xlarge" id="avatar-display-editor"></div>
+          <div class="avatar-preview-name" id="avatar-preview-name">JavaLearner</div>
+          <div class="avatar-preview-level" id="avatar-preview-level">Level 1 · Novice</div>
+        </div>
+      </div>
+      <div class="avatar-options-col">
+        <div class="avatar-tabs">
+          <button class="avatar-tab active" id="tab-skin"      data-tab="skin">🎨 Skin</button>
+          <button class="avatar-tab"        id="tab-hair"      data-tab="hair">💇 Hair</button>
+          <button class="avatar-tab"        id="tab-outfit"    data-tab="outfit">👕 Outfit</button>
+          <button class="avatar-tab"        id="tab-accessory" data-tab="accessory">🕶️ Extra</button>
+        </div>
+        <div class="avatar-options-grid" id="avatar-options-grid"></div>
+        <div class="name-input-row">
+          <label class="name-label">Your Name</label>
+          <input type="text" id="avatar-name-input" class="name-input" placeholder="Enter your name…" maxlength="30"/>
+        </div>
+        <button class="btn-primary btn-save-avatar" id="save-avatar-btn">💾 Save Avatar</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ====== BADGES SCREEN ====== -->
+<section class="screen" id="screen-badges">
+  <div class="badges-container">
+    <div class="badges-header">
+      <h1>🏆 Badge Gallery</h1>
+      <p id="badges-earned-count">Earn badges by completing modules and challenges</p>
+    </div>
+    <div class="badges-grid" id="badges-grid"></div>
+  </div>
+</section>
+
+<!-- ====== SETTINGS SCREEN ====== -->
+<section class="screen" id="screen-settings">
+  <div class="settings-container">
+    <div class="settings-header"><h1>⚙️ Settings</h1></div>
+
+    <div class="settings-card glass-card">
+      <div class="settings-card-icon">👤</div>
+      <h3>Account</h3>
+      <p>Signed in as: <strong id="settings-email">—</strong></p>
+      <p>Playing as: <strong id="settings-player-name">JavaLearner</strong></p>
+      <p>Difficulty: <strong id="settings-difficulty">Beginner</strong></p>
+      <div style="display:flex;gap:.75rem;flex-wrap:wrap;margin-top:.75rem">
+        <button class="btn-secondary" id="edit-avatar-btn">🎨 Edit Avatar</button>
+        <button class="btn-secondary" id="change-diff-btn">🎯 Change Difficulty</button>
+        <button class="btn-danger" id="signout-btn">🚪 Sign Out</button>
+      </div>
+    </div>
+
+    <div class="settings-card glass-card">
+      <div class="settings-card-icon">🤖</div>
+      <h3>AI Tutor — JavaBot</h3>
+      <p>Powered by ultra-fast <strong>Gemini Flash-Lite</strong> (low free-tier token usage). Key is active.</p>
+      <div style="display:flex;gap:0.5rem;margin-top:0.6rem;align-items:center;">
+        <input type="password" id="gemini-key-input" class="login-input" placeholder="Custom Gemini API Key (optional)" style="flex:1;margin:0;font-size:0.85rem;" />
+        <button class="btn-secondary btn-sm" id="save-gemini-key-btn">Save Key</button>
+      </div>
+      <a href="https://aistudio.google.com/app/apikey" target="_blank" class="btn-secondary" style="display:inline-block;text-decoration:none;margin-top:.5rem;font-size:0.8rem">Get Free API Key ↗</a>
+    </div>
+
+    <div class="settings-card glass-card">
+      <div class="settings-card-icon">❤️</div>
+      <h3>Hearts Auto-Refill</h3>
+      <p>Hearts refill every 30 minutes.</p>
+      <button class="btn-secondary" id="refill-hearts-btn">❤️ Refill Hearts Now</button>
+    </div>
+
+    <div class="settings-card glass-card danger-card">
+      <div class="settings-card-icon">⚠️</div>
+      <h3>Danger Zone</h3>
+      <p>Reset all progress, XP, streaks, and badges. <strong>Cannot be undone!</strong></p>
+      <button class="btn-danger" id="reset-progress-btn">🗑️ Reset All Progress</button>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- ====== MODULE POPUP (fixed overlay) ====== -->
+<div class="mod-popup-bg hidden" id="mod-popup-bg"></div>
+<div class="mod-popup-box hidden" id="mod-popup-box">
+  <button class="popup-close-btn" id="popup-close-btn">✕</button>
+  <div class="mod-popup-icon" id="mod-popup-icon">☕</div>
+  <div class="mod-popup-title" id="mod-popup-title">Module</div>
+  <div class="mod-popup-sub" id="mod-popup-sub">Subtitle</div>
+  <div class="mod-popup-lessons" id="mod-popup-lessons"></div>
+  <div class="mod-popup-actions" id="mod-popup-actions"></div>
+</div>
+
+<!-- ====== DIFFICULTY CHANGE MODAL ====== -->
+<div class="modal-overlay hidden" id="modal-diff">
+  <div class="modal-box" style="max-width:520px">
+    <h2 style="margin-bottom:1rem">🎯 Change Difficulty</h2>
+    <p style="color:var(--text-2);margin-bottom:1.25rem">Your progress is saved. Switching difficulty changes which modules are available on the map.</p>
+    <div class="diff-cards" id="modal-diff-cards">
+      <div class="diff-card" data-diff="beginner">
+        <div class="diff-icon">🌱</div><div class="diff-name">Beginner</div>
+        <div class="diff-desc">Modules B1–B8 + Capstone 1</div>
+      </div>
+      <div class="diff-card" data-diff="intermediate">
+        <div class="diff-icon">🔥</div><div class="diff-name">Intermediate</div>
+        <div class="diff-desc">Modules B1–I8 + Capstone 2</div>
+      </div>
+      <div class="diff-card" data-diff="advanced">
+        <div class="diff-icon">⚡</div><div class="diff-name">Advanced</div>
+        <div class="diff-desc">All 24 Modules (B1–A8) + Capstone 3</div>
+      </div>
+    </div>
+    <div style="display:flex;gap:1rem;justify-content:center;margin-top:1.5rem">
+      <button class="btn-secondary" id="diff-cancel-btn">Cancel</button>
+      <button class="btn-primary"   id="diff-confirm-btn">Save Change</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== CAPSTONE PROJECT MODAL ====== -->
+<div class="modal-overlay hidden" id="modal-project">
+  <div class="modal-box project-modal-box">
+    <button class="popup-close-btn" id="project-close-btn">✕</button>
+    <div class="project-modal-header">
+      <div class="project-modal-icon" id="project-modal-icon">🏆</div>
+      <div>
+        <span class="project-level-badge" id="project-level-badge">Beginner Capstone</span>
+        <h2 id="project-modal-title">Personal Expense Tracker</h2>
+      </div>
+    </div>
+    <p class="project-modal-desc" id="project-modal-desc"></p>
+    <div class="project-modal-section">
+      <h4>📋 Key Requirements:</h4>
+      <ul id="project-modal-reqs" class="project-req-list"></ul>
+    </div>
+    <div class="project-modal-section">
+      <h4>🎯 Evaluation Rubric:</h4>
+      <p id="project-modal-rubric" class="project-rubric-text"></p>
+    </div>
+    <div class="project-modal-actions">
+      <button class="btn-primary" id="project-open-compiler-btn">💻 Open Code Playground to Build</button>
+      <button class="btn-secondary" id="project-close-action-btn">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ====== AI CHAT ====== -->
+<div class="ai-chat-wrapper" id="ai-chat-wrapper">
+  <div class="chat-panel hidden" id="chat-panel">
+    <div class="chat-panel-header">
+      <div class="chat-bot-info">
+        <div class="chat-bot-avatar">🤖</div>
+        <div>
+          <div class="chat-bot-name">JavaBot</div>
+          <div class="chat-bot-status" id="chat-bot-status">Your AI Java Tutor</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:.4rem;">
+        <button class="btn-clear-chat" id="chat-clear-btn" title="Clear chat history to save tokens">↺ Reset</button>
+        <button class="chat-close-btn" id="chat-close-btn">✕</button>
+      </div>
+    </div>
+    <div class="chat-messages" id="chat-messages">
+      <div class="chat-message bot"><div class="message-bubble">Hi! I'm JavaBot ☕🤖 Ask me anything about Java!</div></div>
+    </div>
+    <div class="chat-typing-indicator hidden" id="chat-typing"><span></span><span></span><span></span></div>
+    <div class="chat-input-area">
+      <input type="text" id="chat-input" class="chat-input" placeholder="Ask about Java…"/>
+      <button class="chat-send-btn" id="chat-send-btn">➤</button>
+    </div>
+  </div>
+  <button class="ai-chat-fab" id="ai-chat-fab" title="Ask JavaBot">
+    <span class="fab-icon">🤖</span><span class="fab-label">Ask AI</span><span class="fab-pulse"></span>
+  </button>
+</div>
+
+<!-- ====== MODALS ====== -->
+<div class="modal-overlay hidden" id="modal-levelup">
+  <div class="modal-box levelup-modal">
+    <div class="levelup-particles" id="levelup-particles"></div>
+    <div class="levelup-badge">⭐ LEVEL UP!</div>
+    <div class="levelup-new-level" id="levelup-new-level">Level 2</div>
+    <div class="levelup-rank" id="levelup-rank">Apprentice</div>
+    <div class="levelup-rank-icon" id="levelup-rank-icon">📖</div>
+    <button class="btn-primary" id="levelup-ok-btn">Awesome! 🎉</button>
+  </div>
+</div>
+<div class="modal-overlay hidden" id="modal-badge">
+  <div class="modal-box badge-modal">
+    <div class="badge-modal-glow"></div>
+    <div class="badge-unlocked-icon" id="badge-unlocked-icon">🏆</div>
+    <div class="badge-modal-label">Badge Unlocked!</div>
+    <div class="badge-unlocked-name" id="badge-unlocked-name">Java Starter</div>
+    <div class="badge-unlocked-desc" id="badge-unlocked-desc">Complete your first lesson</div>
+    <button class="btn-primary" id="badge-ok-btn">Claim! 🎊</button>
+  </div>
+</div>
+<div class="modal-overlay hidden" id="modal-complete">
+  <div class="modal-box complete-modal">
+    <div class="complete-icon-big">🎓</div>
+    <h2>Module Complete!</h2>
+    <div class="complete-module-name" id="complete-module-name">Getting Started</div>
+    <div class="xp-earned-tag" id="complete-xp-earned">+150 XP Earned!</div>
+    <button class="btn-primary" id="complete-ok-btn">Back to Map 🗺️</button>
+  </div>
+</div>
+<div class="modal-overlay hidden" id="modal-challenge-result">
+  <div class="modal-box challenge-result-modal">
+    <div class="score-circle" id="score-circle"><span id="score-text">5/5</span></div>
+    <h2 id="challenge-result-title">Great Job! 💪</h2>
+    <div class="xp-earned-tag" id="challenge-xp-earned">+100 XP</div>
+    <div class="result-message" id="result-message"></div>
+    <button class="btn-primary" id="challenge-result-ok-btn">Back to Map 🗺️</button>
+  </div>
+</div>
+<div class="modal-overlay hidden" id="modal-reset">
+  <div class="modal-box">
+    <div style="font-size:3rem">⚠️</div>
+    <h2>Reset All Progress?</h2>
+    <p style="color:var(--text-secondary);margin:.5rem 0 1.5rem">All XP, lessons, badges, and streaks will be lost forever.</p>
+    <div style="display:flex;gap:1rem;justify-content:center">
+      <button class="btn-secondary" id="reset-cancel-btn">Cancel</button>
+      <button class="btn-danger"    id="reset-confirm-btn">Yes, Reset</button>
+    </div>
+  </div>
+</div>
+
+<script src="curriculum.js"></script>
+<script src="animations.js"></script>
+<script src="supabase.js"></script>
+<script src="ai-tutor.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
