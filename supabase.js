@@ -220,7 +220,7 @@ function sbGetProgress() {
   var uid = sbCurrentUser() && sbCurrentUser().id;
   if (!uid) return Promise.reject(new Error('Not logged in'));
   return sbFetch('/rest/v1/progress?user_id=eq.' + encodeURIComponent(uid) + '&select=*').then(function(rows) {
-    return rows && rows[0] ? rows[0] : { completed_lessons: [], completed_challenges: [], completed_modules: [], completed_coding: [], coding_attempts: {} };
+    return rows && rows[0] ? rows[0] : { completed_lessons: [], completed_challenges: [], completed_modules: [], completed_coding: [], coding_attempts: {}, capstone_projects: {} };
   });
 }
 
@@ -293,7 +293,8 @@ function _doSaveAll(STATE) {
     completed_challenges: p.completedChallenges,
     completed_modules:    p.completedModules,
     completed_coding:     p.completedCoding || [],
-    coding_attempts:      p.codingAttempts || {}
+    coding_attempts:      p.codingAttempts || {},
+    capstone_projects:    p.capstoneProjects || {}
   }).catch(function(e) { console.warn('Progress save failed:', e.message); });
 
   // Pending badges

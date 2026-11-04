@@ -28,6 +28,7 @@ function sanitizeState(state) {
   if (!Array.isArray(p.completedCoding)) p.completedCoding = [];
   if (!p.codingAttempts || typeof p.codingAttempts !== 'object') p.codingAttempts = {};
   if (!Array.isArray(p.badges)) p.badges = [];
+  if (!p.capstoneProjects || typeof p.capstoneProjects !== 'object') p.capstoneProjects = {};
   if (typeof p.xp !== 'number' || isNaN(p.xp)) p.xp = 0;
   if (typeof p.level !== 'number' || isNaN(p.level)) p.level = 1;
   if (typeof p.streak !== 'number' || isNaN(p.streak)) p.streak = 1;
@@ -44,7 +45,7 @@ function freshState(name, diff, skin) {
       xp: 0, level: 1, streak: 1, lastVisit: new Date().toDateString(),
       hearts: 3, heartRefillTime: null,
       badges: [], completedLessons: [], completedModules: [], completedChallenges: [],
-      completedCoding: [], codingAttempts: {}
+      completedCoding: [], codingAttempts: {}, capstoneProjects: {}
     }
   });
 }
@@ -107,6 +108,9 @@ var ALL_SCREENS = ['auth','home','map','lesson','challenge','coding','compiler',
 function showScreen(name) {
   if (name !== 'auth' && (!STATE || !STATE.player)) {
     name = 'auth';
+  }
+  if (name !== 'compiler' && _activeCapstoneProj) {
+    saveCapstoneCode();
   }
   for (var i=0; i<ALL_SCREENS.length; i++) {
     var el = ge('screen-'+ALL_SCREENS[i]);
@@ -367,7 +371,8 @@ function loadUserAndEnter() {
           completedModules:     progress.completed_modules    || [],
           completedChallenges:  progress.completed_challenges || [],
           completedCoding:      progress.completed_coding     || [],
-          codingAttempts:       progress.coding_attempts      || {}
+          codingAttempts:       progress.coding_attempts      || {},
+          capstoneProjects:     progress.capstone_projects    || {}
         }
       };
       STATE = sanitizeState(STATE);
@@ -697,17 +702,42 @@ function renderMap() {
     // Capstone Project Card at the end of each track
     var proj = (window.PROJECTS || []).find(function(p){ return p.id === tr.projId; });
     if (proj) {
+      var pState = (STATE && STATE.player && STATE.player.capstoneProjects) ? STATE.player.capstoneProjects[proj.id] : null;
+      var isCompleted = pState && pState.completed;
+      var checkedCount = 0;
+      if (pState && pState.tasks) {
+        checkedCount = Object.keys(pState.tasks).filter(function(k){ return pState.tasks[k]; }).length;
+      }
+      var totalReqs = (proj.requirements || []).length;
+
       var pCard = document.createElement('div');
-      pCard.className = 'capstone-project-card glass-card';
+      var cardClasses = 'capstone-project-card glass-card';
+      if (isCompleted) cardClasses += ' capstone-card-completed';
+      else if (checkedCount > 0) cardClasses += ' capstone-card-in-progress';
+      pCard.className = cardClasses;
       pCard.setAttribute('data-projid', proj.id);
-      pCard.innerHTML = '<div class="capstone-icon-col"><span class="capstone-icon">🏆</span></div>'
+
+      var pillText = '🌟 ' + tr.key.toUpperCase() + ' CAPSTONE PROJECT';
+      var actionBtnText = 'View Project 🚀';
+      var descText = proj.description;
+
+      if (isCompleted) {
+        pillText = '🌟 ' + tr.key.toUpperCase() + ' CAPSTONE • ✅ COMPLETED (+' + (proj.xpReward || 250) + ' XP)';
+        actionBtnText = 'Review Project ⭐';
+        descText = '🎉 Milestone requirements completed! ' + (pState.completedAt ? 'Completed on ' + new Date(pState.completedAt).toLocaleDateString() : 'Claimed!');
+      } else if (checkedCount > 0) {
+        pillText = '🌟 ' + tr.key.toUpperCase() + ' CAPSTONE • ⚡ IN PROGRESS (' + checkedCount + '/' + totalReqs + ' Tasks)';
+        actionBtnText = 'Continue Project 🚀';
+      }
+
+      pCard.innerHTML = '<div class="capstone-icon-col"><span class="capstone-icon">' + (isCompleted ? '👑' : '🏆') + '</span></div>'
         + '<div class="capstone-body">'
-        + '<div class="capstone-level-pill">🌟 ' + tr.key.toUpperCase() + ' CAPSTONE PROJECT</div>'
+        + '<div class="capstone-level-pill">' + pillText + '</div>'
         + '<h3 class="capstone-title">' + esc(proj.title) + '</h3>'
-        + '<p class="capstone-desc">' + esc(proj.description) + '</p>'
+        + '<p class="capstone-desc">' + esc(descText) + '</p>'
         + '</div>'
         + '<div class="capstone-action">'
-        + '<button class="btn-primary btn-sm capstone-view-btn" data-projid="' + proj.id + '">View Project 🚀</button>'
+        + '<button class="btn-primary btn-sm capstone-view-btn" data-projid="' + proj.id + '">' + actionBtnText + '</button>'
         + '</div>';
       pCard.addEventListener('click', function(e){
         var pid = this.getAttribute('data-projid');
@@ -718,45 +748,233 @@ function renderMap() {
   });
 }
 
+var _activeCapstoneProj = null;
+var _capstoneAutoSaveTimer = null;
+
+function saveCapstoneCode() {
+  if (!_activeCapstoneProj || !STATE || !STATE.player) return;
+  if (!STATE.player.capstoneProjects) STATE.player.capstoneProjects = {};
+  if (!STATE.player.capstoneProjects[_activeCapstoneProj]) {
+    STATE.player.capstoneProjects[_activeCapstoneProj] = { completed: false, tasks: {}, code: '' };
+  }
+  var ed = ge('code-editor');
+  if (ed) {
+    STATE.player.capstoneProjects[_activeCapstoneProj].code = ed.value;
+    STATE.player.capstoneProjects[_activeCapstoneProj].lastSavedAt = new Date().toISOString();
+    localSave();
+    setText('capstone-save-status', '💾 Saved ' + new Date().toLocaleTimeString());
+    toast('Project code saved to cloud! 💾☁️');
+  }
+}
+
+function handleEditorInput() {
+  if (!_activeCapstoneProj || !STATE || !STATE.player) return;
+  setText('capstone-save-status', '⏳ Editing…');
+  clearTimeout(_capstoneAutoSaveTimer);
+  _capstoneAutoSaveTimer = setTimeout(function(){
+    var ed = ge('code-editor');
+    if (ed && _activeCapstoneProj && STATE.player && STATE.player.capstoneProjects) {
+      if (!STATE.player.capstoneProjects[_activeCapstoneProj]) {
+        STATE.player.capstoneProjects[_activeCapstoneProj] = { completed: false, tasks: {}, code: '' };
+      }
+      STATE.player.capstoneProjects[_activeCapstoneProj].code = ed.value;
+      STATE.player.capstoneProjects[_activeCapstoneProj].lastSavedAt = new Date().toISOString();
+      localSave();
+      setText('capstone-save-status', '💾 Auto-saved ' + new Date().toLocaleTimeString());
+    }
+  }, 1200);
+}
+
+function loadCapstoneCodeIntoPlayground(proj) {
+  _activeCapstoneProj = proj.id;
+  var ed = ge('code-editor');
+  var pState = STATE.player.capstoneProjects && STATE.player.capstoneProjects[proj.id];
+  var codeToLoad = (pState && pState.code && pState.code.trim()) ? pState.code : (proj.starterCode || '');
+  if (ed) {
+    ed.value = codeToLoad;
+    ed.focus();
+    clearOutput();
+  }
+
+  var banner = ge('capstone-editor-banner');
+  if (banner) {
+    banner.classList.remove('hidden');
+    setText('capstone-banner-title', proj.title);
+    setText('capstone-save-status', (pState && pState.lastSavedAt) ? '💾 Saved ' + new Date(pState.lastSavedAt).toLocaleTimeString() : '💾 Ready');
+  }
+
+  toast('Loaded ' + proj.title + ' in Playground! 💻');
+}
+
 function openProjectModal(projId) {
   var proj = (window.PROJECTS || []).find(function(p){ return p.id === projId; });
   if (!proj) return;
+  _activeCapstoneProj = proj.id;
+
+  if (!STATE.player.capstoneProjects) STATE.player.capstoneProjects = {};
+  if (!STATE.player.capstoneProjects[proj.id]) {
+    STATE.player.capstoneProjects[proj.id] = { completed: false, tasks: {}, code: '' };
+  }
+  var pState = STATE.player.capstoneProjects[proj.id];
+  if (!pState.tasks || typeof pState.tasks !== 'object') pState.tasks = {};
+
   setText('project-level-badge', (proj.level || 'Java').toUpperCase() + ' CAPSTONE');
   setText('project-modal-title', proj.title);
   setText('project-modal-desc', proj.description);
+  setText('project-modal-rubric', proj.rubric || 'Clean architecture, methods, error handling & tests.');
 
-  var reqsList = ge('project-modal-reqs');
-  if (reqsList) {
-    reqsList.innerHTML = (proj.requirements || []).map(function(r){
-      return '<li>' + esc(r) + '</li>';
-    }).join('');
+  var statusPill = ge('project-status-pill');
+  var banner = ge('project-completion-banner');
+  var completeBtn = ge('project-complete-btn');
+
+  function updateStatusUI() {
+    var reqs = proj.requirements || [];
+    var checked = 0;
+    reqs.forEach(function(_, i){ if (pState.tasks[i]) checked++; });
+    var pct = reqs.length ? Math.round((checked / reqs.length) * 100) : 0;
+
+    setText('project-progress-badge', checked + '/' + reqs.length + ' Done (' + pct + '%)');
+    var fill = ge('project-progress-bar-fill');
+    if (fill) fill.style.width = pct + '%';
+
+    if (pState.completed) {
+      if (statusPill) {
+        statusPill.className = 'project-status-pill completed';
+        statusPill.textContent = '✅ Completed (+' + (proj.xpReward || 250) + ' XP)';
+      }
+      if (banner) {
+        banner.classList.remove('hidden');
+        var dStr = pState.completedAt ? new Date(pState.completedAt).toLocaleDateString() : 'recently';
+        setText('project-completion-sub', 'Progress saved to cloud. Completed ' + dStr + ' • +' + (proj.xpReward || 250) + ' XP claimed & badge unlocked!');
+      }
+      if (completeBtn) {
+        completeBtn.textContent = '✅ Project Completed (XP Claimed)';
+        completeBtn.classList.remove('btn-primary');
+        completeBtn.classList.add('btn-secondary');
+      }
+    } else {
+      if (banner) banner.classList.add('hidden');
+      if (completeBtn) {
+        completeBtn.textContent = (pct === 100) ? '🎉 Complete Project & Claim ' + (proj.xpReward || 250) + ' XP!' : '🎉 Mark Project Complete (+' + (proj.xpReward || 250) + ' XP)';
+        completeBtn.classList.remove('btn-secondary');
+        completeBtn.classList.add('btn-primary');
+      }
+      if (statusPill) {
+        if (checked > 0) {
+          statusPill.className = 'project-status-pill in-progress';
+          statusPill.textContent = '⚡ In Progress (' + checked + '/' + reqs.length + ')';
+        } else {
+          statusPill.className = 'project-status-pill not-started';
+          statusPill.textContent = '🎯 Not Started';
+        }
+      }
+    }
   }
 
-  setText('project-modal-rubric', proj.rubric || 'Full architecture, clean methods, error handling & automated tests.');
+  // Render Interactive Task Checklist
+  var tasksContainer = ge('project-modal-tasks');
+  if (tasksContainer) {
+    tasksContainer.innerHTML = '';
+    (proj.requirements || []).forEach(function(reqText, idx){
+      var isChecked = !!pState.tasks[idx];
+      var item = document.createElement('div');
+      item.className = 'project-task-item' + (isChecked ? ' checked' : '');
+      item.setAttribute('data-idx', idx);
+      item.innerHTML = '<div class="task-check-circle">' + (isChecked ? '✓' : '') + '</div>'
+        + '<div class="task-text">' + esc(reqText) + '</div>'
+        + '<span class="task-badge-pill">' + (isChecked ? 'Done' : 'Pending') + '</span>';
 
+      item.addEventListener('click', function(){
+        var cur = !!pState.tasks[idx];
+        pState.tasks[idx] = !cur;
+        localSave();
+        updateStatusUI();
+        if (pState.tasks[idx]) {
+          item.classList.add('checked');
+          item.querySelector('.task-check-circle').textContent = '✓';
+          item.querySelector('.task-badge-pill').textContent = 'Done';
+          toast('Milestone ' + (idx + 1) + ' checked! 🎯');
+        } else {
+          item.classList.remove('checked');
+          item.querySelector('.task-check-circle').textContent = '';
+          item.querySelector('.task-badge-pill').textContent = 'Pending';
+        }
+      });
+      tasksContainer.appendChild(item);
+    });
+  }
+
+  // Render Feature Ideas Section
+  var ideasContainer = ge('project-modal-ideas');
+  if (ideasContainer) {
+    ideasContainer.innerHTML = '';
+    var ideas = proj.featureIdeas || [];
+    ideas.forEach(function(idea){
+      var card = document.createElement('div');
+      card.className = 'project-idea-card';
+      card.innerHTML = '<div class="idea-card-header">'
+        + '<span class="idea-card-icon">' + (idea.icon || '💡') + '</span>'
+        + '<span class="idea-card-title">' + esc(idea.title) + '</span>'
+        + '</div>'
+        + '<div class="idea-card-concepts">' + esc(idea.concepts || '') + '</div>'
+        + '<p class="idea-card-desc">' + esc(idea.description) + '</p>';
+      ideasContainer.appendChild(card);
+    });
+  }
+
+  // Wire "Ask JavaBot for More Ideas" Button
+  var askAiBtn = ge('project-ask-ai-btn');
+  if (askAiBtn) {
+    askAiBtn.onclick = function(){
+      hideModal('modal-project');
+      if (typeof sendPromptToChat === 'function') {
+        sendPromptToChat("I'm building the " + proj.title + " Capstone project in JavaQuest! Based on what I've learned in the " + proj.level + " Java track, what are 3 creative next features I should add with implementation advice?");
+      } else {
+        toggleChat();
+      }
+    };
+  }
+
+  // Wire "Complete Project & Claim XP" Button
+  if (completeBtn) {
+    completeBtn.onclick = function(){
+      if (pState.completed) {
+        toast('Project already completed! 🏆');
+        return;
+      }
+      var reqs = proj.requirements || [];
+      var checked = 0;
+      reqs.forEach(function(_, i){ if (pState.tasks[i]) checked++; });
+      if (checked < reqs.length) {
+        if (!confirm('You have checked ' + checked + ' of ' + reqs.length + ' milestones. Mark this capstone project as fully completed anyway and claim ' + (proj.xpReward || 250) + ' XP?')) {
+          return;
+        }
+        reqs.forEach(function(_, i){ pState.tasks[i] = true; });
+      }
+
+      pState.completed = true;
+      pState.completedAt = new Date().toISOString();
+      addXP(proj.xpReward || 250);
+      if (proj.badgeId) awardBadgeDirect(proj.badgeId);
+      burstParticles('home-particles');
+      localSave();
+      updateStatusUI();
+      renderMap();
+      toast('🏆 Capstone Completed! +' + (proj.xpReward || 250) + ' XP & Badge Awarded! 🌟');
+    };
+  }
+
+  // Wire "Open Code Playground to Build" Button
   var openBtn = ge('project-open-compiler-btn');
   if (openBtn) {
     openBtn.onclick = function() {
       hideModal('modal-project');
       showScreen('compiler');
-      var ed = ge('code-editor');
-      if (ed) {
-        ed.value = '// ===============================================================\n'
-          + '// Capstone Project: ' + proj.title + '\n'
-          + '// Level: ' + proj.level.toUpperCase() + '\n'
-          + '// Goal: ' + proj.description + '\n'
-          + '// ===============================================================\n\n'
-          + 'public class Main {\n'
-          + '    public static void main(String[] args) {\n'
-          + '        System.out.println("Starting ' + proj.title + '...");\n'
-          + '        // Write your full solution here\n'
-          + '    }\n'
-          + '}\n';
-      }
-      toast('Loaded ' + proj.title + ' template into Code Playground! 💻');
+      loadCapstoneCodeIntoPlayground(proj);
     };
   }
 
+  updateStatusUI();
   showModal('modal-project');
 }
 
@@ -1428,6 +1646,7 @@ function loadTemplate(name){ var ed=ge('code-editor'); if(ed&&TEMPLATES[name]){e
 function runCode() {
   var ed = ge('code-editor'); if (!ed) return;
   var code = ed.value.trim(); if (!code) { toast('Write some code first!'); return; }
+  if (_activeCapstoneProj) saveCapstoneCode();
   var outEl = ge('output-area'); if (!outEl) return;
   var runBtn = ge('run-btn'); if (runBtn) { runBtn.disabled = true; runBtn.textContent = '⏳ Running…'; }
   outEl.innerHTML = '<div class="output-running"><span class="run-spinner"></span>Compiling and running Java…</div>';
@@ -1506,6 +1725,17 @@ function checkBadge(condition){
   localSave();
   var b=badge;
   setTimeout(function(){setText('badge-unlocked-icon',b.icon);setText('badge-unlocked-name',b.name);setText('badge-unlocked-desc',b.description);showModal('modal-badge');},900);
+}
+
+function awardBadgeDirect(badgeId){
+  if(!window.BADGES || !STATE || !STATE.player) return;
+  var badge=null;for(var i=0;i<BADGES.length;i++)if(BADGES[i].id===badgeId){badge=BADGES[i];break;}
+  if(!badge||STATE.player.badges.indexOf(badge.id)!==-1) return;
+  STATE.player.badges.push(badge.id);
+  sbQueueBadge(badge.id);
+  localSave();
+  var b=badge;
+  setTimeout(function(){setText('badge-unlocked-icon',b.icon);setText('badge-unlocked-name',b.name);setText('badge-unlocked-desc',b.description);showModal('modal-badge');},600);
 }
 
 function renderBadges(){
@@ -1860,9 +2090,19 @@ document.addEventListener('DOMContentLoaded', function(){
     });
   }
 
-  // ── CAPSTONE PROJECT MODAL ────────────────────────────────────
+  // ── CAPSTONE PROJECT MODAL & PLAYGROUND ────────────────────────
   var pcb=ge('project-close-btn');        if(pcb)pcb.addEventListener('click',function(){hideModal('modal-project');});
   var pcab=ge('project-close-action-btn');if(pcab)pcab.addEventListener('click',function(){hideModal('modal-project');});
+  var capViewBtn=ge('capstone-view-checklist-btn');
+  if(capViewBtn)capViewBtn.addEventListener('click',function(){
+    if(_activeCapstoneProj) openProjectModal(_activeCapstoneProj);
+  });
+  var capSaveBtn=ge('capstone-save-code-btn');
+  if(capSaveBtn)capSaveBtn.addEventListener('click',saveCapstoneCode);
+  var codeEd=ge('code-editor');
+  if(codeEd){
+    codeEd.addEventListener('input',handleEditorInput);
+  }
 
   // ── AI CHAT ───────────────────────────────────────────────────
   var fab=ge('ai-chat-fab');     if(fab)fab.addEventListener('click',toggleChat);

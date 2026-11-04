@@ -337,6 +337,19 @@
       <button class="btn-template" id="tpl-oop">OOP Class</button>
       <button class="btn-template" id="tpl-scanner">User Input</button>
     </div>
+
+    <!-- Capstone Project Context Banner -->
+    <div class="capstone-editor-banner hidden" id="capstone-editor-banner">
+      <div class="capstone-banner-left">
+        <span class="capstone-banner-badge" id="capstone-banner-badge">🏆 CAPSTONE PROJECT</span>
+        <span class="capstone-banner-title" id="capstone-banner-title">Personal Expense Tracker</span>
+        <span class="capstone-save-status" id="capstone-save-status">💾 Auto-saved</span>
+      </div>
+      <div class="capstone-banner-actions">
+        <button class="btn-xs btn-outline-gold" id="capstone-view-checklist-btn">📋 Tasks & Feature Ideas</button>
+        <button class="btn-xs btn-primary-gold" id="capstone-save-code-btn">💾 Save Project Code</button>
+      </div>
+    </div>
     <div class="compiler-layout" id="compiler-layout">
       <div class="editor-panel" id="compiler-editor-panel">
         <div class="editor-toolbar">
@@ -497,23 +510,57 @@
     <button class="popup-close-btn" id="project-close-btn">✕</button>
     <div class="project-modal-header">
       <div class="project-modal-icon" id="project-modal-icon">🏆</div>
-      <div>
-        <span class="project-level-badge" id="project-level-badge">Beginner Capstone</span>
+      <div style="flex: 1;">
+        <div style="display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; flex-wrap: wrap;">
+          <span class="project-level-badge" id="project-level-badge">Beginner Capstone</span>
+          <span class="project-status-pill not-started" id="project-status-pill">🎯 Not Started</span>
+        </div>
         <h2 id="project-modal-title">Personal Expense Tracker</h2>
       </div>
     </div>
-    <p class="project-modal-desc" id="project-modal-desc"></p>
-    <div class="project-modal-section">
-      <h4>📋 Key Requirements:</h4>
-      <ul id="project-modal-reqs" class="project-req-list"></ul>
+    
+    <div class="project-completion-banner hidden" id="project-completion-banner">
+      <span class="completion-banner-icon">🎉</span>
+      <div>
+        <strong id="project-completion-title">Capstone Project Completed!</strong>
+        <p id="project-completion-sub">Progress saved & verified. +250 XP earned!</p>
+      </div>
     </div>
+
+    <p class="project-modal-desc" id="project-modal-desc"></p>
+
+    <!-- Milestone Checklist with Live Progress Saving -->
+    <div class="project-modal-section">
+      <div class="project-section-header-row">
+        <h4>📋 Milestone Checklist</h4>
+        <span class="project-progress-badge" id="project-progress-badge">0/5 Done (0%)</span>
+      </div>
+      <div class="project-progress-bar-wrap">
+        <div class="project-progress-bar-fill" id="project-progress-bar-fill" style="width: 0%"></div>
+      </div>
+      <div id="project-modal-tasks" class="project-task-checklist"></div>
+    </div>
+
+    <!-- Evaluation Rubric -->
     <div class="project-modal-section">
       <h4>🎯 Evaluation Rubric:</h4>
       <p id="project-modal-rubric" class="project-rubric-text"></p>
     </div>
+
+    <!-- Next Feature Ideas Based on What They Learned -->
+    <div class="project-modal-section feature-ideas-section">
+      <div class="project-section-header-row">
+        <h4>💡 Next Feature Ideas (Built on Your Java Foundation)</h4>
+        <button class="btn-xs btn-ask-ai-ideas" id="project-ask-ai-btn">🤖 Ask JavaBot for More</button>
+      </div>
+      <p class="project-ideas-intro">Level up your project! Here are creative extensions designed specifically around the Java concepts you conquered in this track:</p>
+      <div class="project-ideas-grid" id="project-modal-ideas"></div>
+    </div>
+
     <div class="project-modal-actions">
-      <button class="btn-primary" id="project-open-compiler-btn">💻 Open Code Playground to Build</button>
-      <button class="btn-secondary" id="project-close-action-btn">Close</button>
+      <button class="btn-primary" id="project-complete-btn">🎉 Complete Project & Claim XP</button>
+      <button class="btn-secondary" id="project-open-compiler-btn">💻 Open in Code Playground</button>
+      <button class="btn-outline" id="project-close-action-btn">Close</button>
     </div>
   </div>
 </div>

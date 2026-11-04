@@ -1344,16 +1344,20 @@ body {
 
 /* ═══════════════ PROJECT DETAILS MODAL ══════════════════════════ */
 .project-modal-box {
-  max-width: 620px;
+  max-width: 760px;
+  max-height: 90vh;
+  overflow-y: auto;
   text-align: left;
-  padding: 2.2rem;
+  padding: 2rem 2.2rem;
   position: relative;
+  border: 1px solid rgba(255, 209, 102, 0.35);
+  box-shadow: 0 20px 60px rgba(0,0,0,0.7), 0 0 35px rgba(255, 209, 102, 0.12);
 }
 .project-modal-header {
   display: flex;
   align-items: center;
   gap: 1.25rem;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1rem;
 }
 .project-modal-icon {
   font-size: 2.75rem;
@@ -1365,6 +1369,7 @@ body {
   align-items: center;
   justify-content: center;
   border: 1px solid rgba(255, 209, 102, 0.3);
+  flex-shrink: 0;
 }
 .project-level-badge {
   font-size: 0.75rem;
@@ -1373,6 +1378,335 @@ body {
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
+.project-status-pill {
+  font-size: 0.72rem;
+  font-weight: 800;
+  padding: 0.25rem 0.65rem;
+  border-radius: 20px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+.project-status-pill.not-started {
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-secondary);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+.project-status-pill.in-progress {
+  background: rgba(255, 209, 102, 0.15);
+  color: #FFD166;
+  border: 1px solid rgba(255, 209, 102, 0.4);
+}
+.project-status-pill.completed {
+  background: rgba(67, 216, 201, 0.18);
+  color: #43D8C9;
+  border: 1px solid rgba(67, 216, 201, 0.5);
+  box-shadow: 0 0 12px rgba(67, 216, 201, 0.2);
+}
+
+.project-completion-banner {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: linear-gradient(135deg, rgba(67, 216, 201, 0.18) 0%, rgba(108, 99, 255, 0.15) 100%);
+  border: 1px solid rgba(67, 216, 201, 0.5);
+  border-radius: var(--r-md);
+  padding: 0.9rem 1.25rem;
+  margin-bottom: 1.25rem;
+  animation: bannerFadeIn 0.3s ease;
+}
+.project-completion-banner .completion-banner-icon {
+  font-size: 2rem;
+}
+.project-completion-banner strong {
+  color: #43D8C9;
+  font-size: 0.98rem;
+  display: block;
+  margin-bottom: 0.2rem;
+}
+.project-completion-banner p {
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  margin: 0;
+}
+
+.project-section-header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.65rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.project-progress-badge {
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #FFD166;
+  background: rgba(255, 209, 102, 0.12);
+  padding: 0.2rem 0.6rem;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 209, 102, 0.25);
+}
+.project-progress-bar-wrap {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+  overflow: hidden;
+  margin-bottom: 0.9rem;
+}
+.project-progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #FFD166 0%, #43D8C9 100%);
+  border-radius: 999px;
+  transition: width 0.35s ease;
+}
+
+.project-task-checklist {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+.project-task-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.85rem;
+  padding: 0.75rem 0.95rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--r-md);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+.project-task-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 209, 102, 0.3);
+  transform: translateX(2px);
+}
+.project-task-item.checked {
+  background: rgba(67, 216, 201, 0.07);
+  border-color: rgba(67, 216, 201, 0.3);
+}
+.task-check-circle {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 2px;
+  transition: all 0.2s ease;
+  font-size: 0.75rem;
+  color: transparent;
+}
+.project-task-item.checked .task-check-circle {
+  background: #43D8C9;
+  border-color: #43D8C9;
+  color: #0E0E24;
+  font-weight: 900;
+}
+.task-text {
+  flex: 1;
+  font-size: 0.86rem;
+  color: var(--text-primary);
+  line-height: 1.5;
+}
+.project-task-item.checked .task-text {
+  color: var(--text-secondary);
+  text-decoration: line-through;
+  text-decoration-color: rgba(67, 216, 201, 0.6);
+}
+.task-badge-pill {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.15rem 0.45rem;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+.project-task-item.checked .task-badge-pill {
+  background: rgba(67, 216, 201, 0.15);
+  color: #43D8C9;
+}
+.project-task-item:not(.checked) .task-badge-pill {
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--text-muted);
+}
+
+/* Feature Ideas Section */
+.feature-ideas-section {
+  background: linear-gradient(135deg, rgba(108, 99, 255, 0.08) 0%, rgba(20, 15, 38, 0.5) 100%) !important;
+  border: 1px solid rgba(108, 99, 255, 0.3) !important;
+}
+.btn-ask-ai-ideas {
+  background: linear-gradient(135deg, #6C63FF 0%, #43D8C9 100%);
+  color: #fff;
+  border: none;
+  font-size: 0.75rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-ask-ai-ideas:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(108, 99, 255, 0.4);
+}
+.project-ideas-intro {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  margin: 0 0 0.85rem 0;
+}
+.project-ideas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 0.75rem;
+}
+.project-idea-card {
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: var(--r-md);
+  padding: 0.85rem 1rem;
+  transition: all 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+.project-idea-card:hover {
+  border-color: rgba(108, 99, 255, 0.45);
+  transform: translateY(-2px);
+  background: rgba(108, 99, 255, 0.06);
+}
+.idea-card-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.idea-card-icon {
+  font-size: 1.25rem;
+}
+.idea-card-title {
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #fff;
+}
+.idea-card-concepts {
+  font-size: 0.72rem;
+  color: #FFD166;
+  font-weight: 600;
+}
+.idea-card-desc {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  line-height: 1.45;
+  margin: 0;
+}
+
+/* Capstone Map Card States */
+.capstone-project-card.capstone-card-completed {
+  border-color: rgba(67, 216, 201, 0.6) !important;
+  box-shadow: 0 8px 30px rgba(67, 216, 201, 0.2) !important;
+}
+.capstone-project-card.capstone-card-completed::before {
+  background: linear-gradient(90deg, #43D8C9, #06D6A0, #6C63FF) !important;
+}
+.capstone-project-card.capstone-card-completed .capstone-icon-col {
+  background: rgba(67, 216, 201, 0.15) !important;
+  border-color: rgba(67, 216, 201, 0.5) !important;
+}
+.capstone-project-card.capstone-card-completed .capstone-level-pill {
+  color: #43D8C9 !important;
+  background: rgba(67, 216, 201, 0.12) !important;
+}
+.capstone-project-card.capstone-card-completed .capstone-view-btn {
+  background: linear-gradient(135deg, #43D8C9 0%, #06D6A0 100%) !important;
+  color: #0E0E24 !important;
+}
+
+.capstone-project-card.capstone-card-in-progress {
+  border-color: rgba(255, 209, 102, 0.7) !important;
+}
+
+/* Capstone Editor Banner in Playground */
+.capstone-editor-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: linear-gradient(135deg, rgba(35, 24, 70, 0.95) 0%, rgba(18, 14, 40, 0.95) 100%);
+  border: 1px solid rgba(255, 209, 102, 0.4);
+  border-radius: var(--r-md);
+  padding: 0.65rem 1.1rem;
+  margin-bottom: 0.9rem;
+  animation: bannerFadeIn 0.25s ease;
+}
+.capstone-banner-left {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+.capstone-banner-badge {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: #FFD166;
+  background: rgba(255, 209, 102, 0.15);
+  padding: 0.2rem 0.55rem;
+  border-radius: 6px;
+  border: 1px solid rgba(255, 209, 102, 0.3);
+}
+.capstone-banner-title {
+  font-size: 0.92rem;
+  font-weight: 700;
+  color: #fff;
+}
+.capstone-save-status {
+  font-size: 0.75rem;
+  color: #43D8C9;
+  font-weight: 600;
+}
+.capstone-banner-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+.btn-outline-gold {
+  background: transparent;
+  color: #FFD166;
+  border: 1px solid rgba(255, 209, 102, 0.5);
+  border-radius: 8px;
+  padding: 0.35rem 0.75rem;
+  font-weight: 700;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-outline-gold:hover {
+  background: rgba(255, 209, 102, 0.15);
+  border-color: #FFD166;
+}
+.btn-primary-gold {
+  background: linear-gradient(135deg, #FFD166 0%, #F4845F 100%);
+  color: #0E0E24;
+  border: none;
+  border-radius: 8px;
+  padding: 0.35rem 0.85rem;
+  font-weight: 800;
+  font-size: 0.78rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.btn-primary-gold:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(255, 209, 102, 0.35);
+}
+
 .project-modal-desc {
   color: var(--text-secondary);
   font-size: 0.92rem;
@@ -1391,13 +1725,6 @@ body {
   color: #fff;
   margin-bottom: 0.6rem;
   font-weight: 700;
-}
-.project-req-list {
-  padding-left: 1.25rem;
-  margin: 0;
-  color: var(--text-secondary);
-  font-size: 0.85rem;
-  line-height: 1.65;
 }
 .project-rubric-text {
   font-size: 0.85rem;

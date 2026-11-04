@@ -2492,40 +2492,136 @@ const PROJECTS = [
     "id": "proj-beginner",
     "level": "beginner",
     "title": "Personal Expense Tracker (Console)",
-    "description": "Build a console application to track daily income and expenses.",
+    "description": "Build a modular console application to track daily income and expenses with categorized records, budget summaries, and robust input validation.",
+    "xpReward": 250,
+    "badgeId": "capstone-beginner",
     "requirements": [
-      "Add, list, and categorize expenses (Food, Transport, Utilities, Fun)",
-      "Calculate total spending and category breakdown",
-      "Validate user inputs (non-negative amounts, valid dates)",
-      "Save and load data to a text or CSV file"
+      "Define an Expense class with fields (description, amount, category, date) and getter methods",
+      "Create an interactive console menu loop with choices: Add Expense, List All, View Summary, and Exit",
+      "Store expenses in an ArrayList<Expense> and compute total spent + category breakdowns",
+      "Validate user inputs using try-catch blocks to prevent negative numbers or invalid inputs",
+      "Format transaction output cleanly with currency formatting ($%.2f) and timestamps"
     ],
-    "rubric": "Variables, loops, methods, OOP classes, collections, exception handling, and file I/O."
+    "rubric": "Clean OOP class encapsulation, ArrayList usage, loops & conditionals, try-catch exception handling, and clean console output formatting.",
+    "starterCode": "// ===============================================================\n// 🏆 BEGINNER CAPSTONE: Personal Expense Tracker (Console)\n// Focus: OOP, ArrayList, Methods, Loops, Exceptions\n// ===============================================================\nimport java.util.ArrayList;\nimport java.util.Scanner;\n\nclass Expense {\n    private String description;\n    private double amount;\n    private String category;\n\n    public Expense(String description, double amount, String category) {\n        this.description = description;\n        this.amount = amount;\n        this.category = category;\n    }\n\n    public String getDescription() { return description; }\n    public double getAmount() { return amount; }\n    public String getCategory() { return category; }\n\n    @Override\n    public String toString() {\n        return String.format(\"[%-10s] %-20s : $%.2f\", category, description, amount);\n    }\n}\n\npublic class Main {\n    private static ArrayList<Expense> expenses = new ArrayList<>();\n\n    public static void main(String[] args) {\n        System.out.println(\"=========================================\");\n        System.out.println(\"💰 JavaQuest Personal Expense Tracker 💰\");\n        System.out.println(\"=========================================\");\n\n        // Seed initial transactions\n        addExpense(\"Groceries & Fresh Fruit\", 45.50, \"Food\");\n        addExpense(\"Metro Rail Monthly Pass\", 30.00, \"Transport\");\n        addExpense(\"High-Speed Internet\", 55.00, \"Utilities\");\n        addExpense(\"Coffee with Pair Programmer\", 6.75, \"Food\");\n\n        displayAll();\n        displaySummary();\n    }\n\n    public static void addExpense(String desc, double amount, String category) {\n        if (amount < 0) {\n            System.out.println(\"❌ Error: Amount cannot be negative!\");\n            return;\n        }\n        expenses.add(new Expense(desc, amount, category));\n        System.out.println(\"✅ Added expense: \" + desc);\n    }\n\n    public static void displayAll() {\n        System.out.println(\"\\n--- 📋 All Recorded Expenses ---\");\n        for (int i = 0; i < expenses.size(); i++) {\n            System.out.println((i + 1) + \". \" + expenses.get(i));\n        }\n    }\n\n    public static void displaySummary() {\n        double total = 0;\n        for (Expense e : expenses) {\n            total += e.getAmount();\n        }\n        System.out.println(\"\\n-----------------------------------------\");\n        System.out.printf(\"💳 Total Spending: $%.2f across %d transactions\\n\", total, expenses.size());\n        System.out.println(\"-----------------------------------------\");\n    }\n}\n",
+    "featureIdeas": [
+      {
+        "icon": "📊",
+        "title": "Monthly Category Budget Alerts",
+        "concepts": "Conditionals & Arithmetic (Modules B2, B3)",
+        "description": "Define a spending limit per category (e.g. $200 for Food). Track running totals and print a prominent warning (⚠️ Alert: 85% of Food budget reached!) when nearing the limit."
+      },
+      {
+        "icon": "📁",
+        "title": "CSV File Exporter & Importer",
+        "concepts": "Strings, Formatting & File I/O (Modules B6, B8)",
+        "description": "Export expense logs into standard CSV format ('YYYY-MM-DD,Category,Amount') using PrintWriter or FileWriter so transactions can be imported into Excel or Google Sheets."
+      },
+      {
+        "icon": "🔍",
+        "title": "Keyword Search & Range Filtering",
+        "concepts": "ArrayList & String Methods (Modules B6, B8)",
+        "description": "Add search functionality to locate transactions by keyword (e.g. 'Coffee') or filter expenses within a dollar range (e.g. $20 to $100) using ArrayList iterations."
+      },
+      {
+        "icon": "🔁",
+        "title": "Recurring Subscriptions Tracker",
+        "concepts": "OOP Inheritance & Methods (Modules B5, B7)",
+        "description": "Create a RecurringExpense subclass that extends Expense with a frequency field (Weekly, Monthly, Yearly) to automatically project total annual recurring costs."
+      },
+      {
+        "icon": "🛡️",
+        "title": "Custom Exception Guardrails",
+        "concepts": "Custom Exceptions & Try-Catch (Module B8)",
+        "description": "Build an InvalidExpenseException class. Throw and handle it when negative numbers, empty descriptions, or unrecognized categories are entered."
+      }
+    ]
   },
   {
     "id": "proj-intermediate",
     "level": "intermediate",
     "title": "Library / Inventory Management System",
-    "description": "Build a database-backed inventory or library system.",
+    "description": "Build a high-performance inventory or library system using generic repositories, Stream API data analytics, and thread-safe borrow mechanics.",
+    "xpReward": 350,
+    "badgeId": "capstone-intermediate",
     "requirements": [
-      "Search, add, update, and remove items with duplicate prevention",
-      "Filter and sort using Java Streams and custom Comparators",
-      "Persist data using JDBC with PreparedStatements",
-      "Include automated JUnit 5 tests covering edge cases"
+      "Create generic Repository<T> interface and Book/Item record or model classes",
+      "Implement duplicate prevention and thread-safe borrow/return mechanics",
+      "Filter, sort, and aggregate catalog data using Java 8+ Streams and Lambdas",
+      "Persist data using JDBC PreparedStatement or in-memory structured persistence",
+      "Add automated unit assertions verifying availability checks and boundary conditions"
     ],
-    "rubric": "Collections, Generics, JDBC, SQL, JUnit testing, and layered service architecture."
+    "rubric": "Collections, Generics, Lambdas & Streams, JDBC/SQL, Concurrency, and unit testing practices.",
+    "starterCode": "// ===============================================================\n// 🏆 INTERMEDIATE CAPSTONE: Library / Inventory System\n// Focus: Generics, Streams, Lambdas, JDBC/SQL, Concurrency\n// ===============================================================\nimport java.util.*;\nimport java.util.stream.Collectors;\n\nrecord Book(String id, String title, String author, String genre, boolean isAvailable) {}\n\npublic class Main {\n    private static List<Book> catalog = new ArrayList<>();\n\n    public static void main(String[] args) {\n        System.out.println(\"=========================================\");\n        System.out.println(\"📚 JavaQuest Library Management System 📚\");\n        System.out.println(\"=========================================\");\n\n        catalog.add(new Book(\"B1\", \"Effective Java\", \"Joshua Bloch\", \"Tech\", true));\n        catalog.add(new Book(\"B2\", \"Clean Code\", \"Robert C. Martin\", \"Tech\", false));\n        catalog.add(new Book(\"B3\", \"Java Concurrency in Practice\", \"Brian Goetz\", \"Tech\", true));\n        catalog.add(new Book(\"B4\", \"Dune\", \"Frank Herbert\", \"Sci-Fi\", true));\n\n        // Stream API: Filter available tech books\n        List<Book> availableTech = catalog.stream()\n            .filter(Book::isAvailable)\n            .filter(b -> b.genre().equalsIgnoreCase(\"Tech\"))\n            .sorted(Comparator.comparing(Book::title))\n            .collect(Collectors.toList());\n\n        System.out.println(\"\\n--- 📖 Available Tech Books (Stream Filtered) ---\");\n        availableTech.forEach(b -> System.out.println(\"🔹 \" + b.title() + \" by \" + b.author()));\n\n        // Aggregate by genre\n        Map<String, Long> countByGenre = catalog.stream()\n            .collect(Collectors.groupingBy(Book::genre, Collectors.counting()));\n\n        System.out.println(\"\\n--- 📊 Catalog Breakdown by Genre ---\");\n        countByGenre.forEach((genre, count) -> System.out.println(\"• \" + genre + \": \" + count + \" titles\"));\n    }\n}\n",
+    "featureIdeas": [
+      {
+        "icon": "⚡",
+        "title": "Thread-Safe Concurrent Borrowing",
+        "concepts": "Concurrency & Locks (Module I8)",
+        "description": "Simulate simultaneous users attempting to borrow the last available copy using ReentrantLock or AtomicInteger to prevent race conditions and double checkouts."
+      },
+      {
+        "icon": "📈",
+        "title": "Stream Analytics Dashboard",
+        "concepts": "Lambdas & Streams (Module I4)",
+        "description": "Use Collectors.groupingBy() and summarizingDouble() to generate instant reports on top borrowed authors, average ratings, and overdue counts."
+      },
+      {
+        "icon": "🗄️",
+        "title": "JDBC Transaction Rollbacks",
+        "concepts": "JDBC & SQL (Module I7)",
+        "description": "Wrap multi-table checkout operations (updating book status + logging borrower history) in a database transaction with setAutoCommit(false) and rollback on error."
+      },
+      {
+        "icon": "🧪",
+        "title": "Comprehensive Unit Test Suite",
+        "concepts": "JUnit 5 Testing (Module I6)",
+        "description": "Write automated test cases using @ParameterizedTest and assertThrows(BookUnavailableException.class) to test boundary and edge conditions."
+      }
+    ]
   },
   {
     "id": "proj-advanced",
     "level": "advanced",
     "title": "Task Management REST API (Spring Boot)",
-    "description": "Design and deploy a production-ready REST service.",
+    "description": "Design and deploy an enterprise-grade REST service with JWT security, JPA persistence, and Dockerized microservice architecture.",
+    "xpReward": 500,
+    "badgeId": "capstone-advanced",
     "requirements": [
-      "JWT Authentication & role-based authorization",
-      "CRUD task management with status, deadlines, and pagination",
-      "Database persistence with Spring Data JPA and transactions",
-      "Structured JSON logging, input validation, and containerized Dockerfile"
+      "Design RESTful endpoints for CRUD tasks (GET, POST, PUT, DELETE)",
+      "Implement JWT Authentication & Role-Based Access Control (Admin vs User)",
+      "Configure database persistence with Spring Data JPA and transactions",
+      "Add input validation (@NotNull, @Size), custom error handlers, and pagination",
+      "Write a production Dockerfile and Docker Compose setup"
     ],
-    "rubric": "Spring Boot, REST architecture, persistence, security, concurrency, and Docker packaging."
+    "rubric": "Spring Boot, REST architecture, JPA persistence, JWT security, virtual threads, and Docker CI/CD.",
+    "starterCode": "// ===============================================================\n// 🏆 ADVANCED CAPSTONE: Task Management REST API Simulator\n// Focus: REST Architecture, JWT Auth, Spring Data JPA, Virtual Threads\n// ===============================================================\nimport java.time.LocalDateTime;\nimport java.util.*;\n\nenum TaskStatus { TODO, IN_PROGRESS, COMPLETED }\n\nclass Task {\n    private String id;\n    private String title;\n    private String assignee;\n    private TaskStatus status;\n    private LocalDateTime createdAt;\n\n    public Task(String id, String title, String assignee, TaskStatus status) {\n        this.id = id;\n        this.title = title;\n        this.assignee = assignee;\n        this.status = status;\n        this.createdAt = LocalDateTime.now();\n    }\n\n    public String getId() { return id;\n }\n    public String getTitle() { return title; }\n    public String getAssignee() { return assignee; }\n    public TaskStatus getStatus() { return status; }\n    public void setStatus(TaskStatus status) { this.status = status; }\n\n    @Override\n    public String toString() {\n        return String.format(\"[%-11s] #%-3s: %-35s (Assignee: %s)\", status, id, title, assignee);\n    }\n}\n\npublic class Main {\n    private static Map<String, Task> taskDatabase = new LinkedHashMap<>();\n\n    public static void main(String[] args) {\n        System.out.println(\"==================================================\");\n        System.out.println(\"⚡ JavaQuest Task Management REST API Simulator ⚡\");\n        System.out.println(\"==================================================\");\n\n        // Simulate REST Controller endpoints\n        postTask(\"101\", \"Setup Spring Security & JWT Filter\", \"Advaith\");\n        postTask(\"102\", \"Implement TaskRepository JPA Methods\", \"Advaith\");\n        postTask(\"103\", \"Enable Virtual Threads in application.properties\", \"Alex\");\n\n        System.out.println(\"\\n[GET /api/tasks] Returning all active tasks:\");\n        taskDatabase.values().forEach(System.out::println);\n\n        System.out.println(\"\\n[PUT /api/tasks/101/status?status=COMPLETED] Updating task...\");\n        updateTaskStatus(\"101\", TaskStatus.COMPLETED);\n\n        System.out.println(\"\\n[GET /api/tasks?status=COMPLETED] Filtered completed tasks:\");\n        taskDatabase.values().stream()\n            .filter(t -> t.getStatus() == TaskStatus.COMPLETED)\n            .forEach(System.out::println);\n    }\n\n    public static void postTask(String id, String title, String assignee) {\n        Task t = new Task(id, title, assignee, TaskStatus.TODO);\n        taskDatabase.put(id, t);\n        System.out.println(\"Created: \" + t);\n    }\n\n    public static void updateTaskStatus(String id, TaskStatus status) {\n        Task t = taskDatabase.get(id);\n        if (t != null) {\n            t.setStatus(status);\n            System.out.println(\"Updated: \" + t);\n        }\n    }\n}\n",
+    "featureIdeas": [
+      {
+        "icon": "🚀",
+        "title": "Java 21 Virtual Threads Engine",
+        "concepts": "Virtual Threads & Concurrency (Module A2)",
+        "description": "Configure Spring Boot 3 with virtual threads (spring.threads.virtual.enabled=true) to effortlessly handle 10,000+ concurrent API requests without thread starvation."
+      },
+      {
+        "icon": "⚡",
+        "title": "Redis Second-Level Caching",
+        "concepts": "Performance & Architecture (Module A4)",
+        "description": "Integrate Redis caching with @Cacheable on frequently requested task summaries and @CacheEvict on modifications to achieve sub-millisecond response times."
+      },
+      {
+        "icon": "🔐",
+        "title": "Refresh Token Rotation & OAuth2",
+        "concepts": "Security & Idempotency (Module A5)",
+        "description": "Implement short-lived JWT access tokens (15m) paired with database-backed refresh tokens and token reuse detection for enterprise-grade authentication."
+      },
+      {
+        "icon": "🐳",
+        "title": "Docker Compose Multi-Container Stack",
+        "concepts": "Docker & Observability (Modules A7, A8)",
+        "description": "Bundle the Spring Boot API, PostgreSQL database, Prometheus metrics collector, and Grafana dashboard into a single docker-compose.yml file."
+      }
+    ]
   }
 ];
 
@@ -2557,6 +2653,27 @@ const BADGES = [
     "icon": "🎯",
     "description": "Solved a coding question on 1st attempt",
     "condition": "perfect_code"
+  },
+  {
+    "id": "capstone-beginner",
+    "name": "Expense Architect",
+    "icon": "🪙",
+    "description": "Completed Beginner Capstone: Personal Expense Tracker",
+    "condition": "capstone_beginner"
+  },
+  {
+    "id": "capstone-intermediate",
+    "name": "Inventory Maestro",
+    "icon": "📚",
+    "description": "Completed Intermediate Capstone: Library System",
+    "condition": "capstone_intermediate"
+  },
+  {
+    "id": "capstone-advanced",
+    "name": "Enterprise Architect",
+    "icon": "⚡",
+    "description": "Completed Advanced Capstone: Task REST API",
+    "condition": "capstone_advanced"
   },
   {
     "id": "streak-3",

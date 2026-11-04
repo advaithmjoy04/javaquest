@@ -36,6 +36,19 @@ function toggleChat() {
   }
 }
 
+function sendPromptToChat(promptText) {
+  var panel = document.getElementById('chat-panel');
+  if (panel && panel.classList.contains('hidden')) {
+    panel.classList.remove('hidden');
+  }
+  var input = document.getElementById('chat-input');
+  if (input) {
+    input.value = promptText;
+  }
+  scrollChatToBottom();
+  sendChatMessage();
+}
+
 function clearChatHistory() {
   chatHistory = [];
   var container = document.getElementById('chat-messages');
