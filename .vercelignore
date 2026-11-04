@@ -1,0 +1,6 @@
+# Files to ignore on Vercel deployment
+server.js
+.env
+.env.local
+scratch/
+*.log

@@ -2,7 +2,6 @@
   "name": "javaquest",
   "version": "1.0.0",
   "description": "JavaQuest — Gamified Java Learning Platform with 24-module roadmap, native Java compiler, Supabase authentication & database, and Gemini Flash-Lite AI tutor.",
-  "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
