@@ -118,6 +118,12 @@ function showScreen(name) {
   }
   var nav = ge('navbar');
   if (nav) nav.style.display = (name==='auth') ? 'none' : 'flex';
+  var aiChat = ge('ai-chat-wrapper');
+  if (aiChat) aiChat.style.display = (name==='auth') ? 'none' : 'flex';
+  if (name==='auth') {
+    var cp = ge('chat-panel');
+    if (cp) cp.classList.add('hidden');
+  }
   qsa('.nav-btn').forEach(function(b){ b.classList.remove('active'); });
   var nb = ge('nav-'+name); if (nb) nb.classList.add('active');
   try {
