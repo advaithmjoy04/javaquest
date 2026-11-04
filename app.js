@@ -2145,6 +2145,27 @@ document.addEventListener('DOMContentLoaded', function(){
   if(capViewBtn)capViewBtn.addEventListener('click',function(){
     if(_activeCapstoneProj) openProjectModal(_activeCapstoneProj);
   });
+  var capResetBtn=ge('capstone-reset-template-btn');
+  if(capResetBtn)capResetBtn.addEventListener('click',function(){
+    if(!_activeCapstoneProj) return;
+    var proj = (window.PROJECTS || []).find(function(p){ return p.id === _activeCapstoneProj; });
+    if(!proj) return;
+    if(confirm('Reset editor to clean starter skeleton with TODOs?')) {
+      var ed = ge('code-editor');
+      if (ed) {
+        ed.value = proj.starterCode || '';
+        ed.focus();
+        clearOutput();
+      }
+      if (STATE && STATE.player && STATE.player.capstoneProjects && STATE.player.capstoneProjects[_activeCapstoneProj]) {
+        STATE.player.capstoneProjects[_activeCapstoneProj].code = proj.starterCode || '';
+        STATE.player.capstoneProjects[_activeCapstoneProj].lastSavedAt = new Date().toISOString();
+        localSave();
+      }
+      setText('capstone-save-status', '💾 Reset to starter skeleton');
+      toast('Reset editor to starter skeleton! ↺');
+    }
+  });
   var capSaveBtn=ge('capstone-save-code-btn');
   if(capSaveBtn)capSaveBtn.addEventListener('click',saveCapstoneCode);
   var codeEd=ge('code-editor');
@@ -2159,6 +2180,19 @@ document.addEventListener('DOMContentLoaded', function(){
   var chs=ge('chat-send-btn');  if(chs)chs.addEventListener('click',sendChatMessage);
   var chi=ge('chat-input');
   if(chi)chi.addEventListener('keydown',function(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();sendChatMessage();}});
+
+  var chipReview = ge('chip-review-code');
+  if (chipReview) chipReview.addEventListener('click', function(){
+    sendPromptToChat("Can you review the code I wrote in the editor? Check for errors, syntax issues, or bad practices and tell me how to improve it!");
+  });
+  var chipError = ge('chip-explain-error');
+  if (chipError) chipError.addEventListener('click', function(){
+    sendPromptToChat("I am getting an error or unexpected output with my current code. Can you explain what went wrong and how to fix it?");
+  });
+  var chipNext = ge('chip-next-step');
+  if (chipNext) chipNext.addEventListener('click', function(){
+    sendPromptToChat("Based on my current code and TODOs, what should I implement next? Give me a helpful hint to get started!");
+  });
 
   // ── BOOT ──────────────────────────────────────────────────────
   try {

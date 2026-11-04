@@ -23,11 +23,81 @@ var AI_SYSTEM = 'You are JavaBot, an ultra-concise Java tutor inside JavaQuest. 
 
 var chatHistory = [];
 
+function getCurrentUserCodeContext() {
+  var code = '';
+  var contextTitle = '';
+
+  var compilerScreen = document.getElementById('screen-compiler');
+  var codingScreen = document.getElementById('screen-coding');
+
+  if (compilerScreen && compilerScreen.classList.contains('active')) {
+    var ed = document.getElementById('code-editor');
+    if (ed && ed.value && ed.value.trim()) {
+      code = ed.value.trim();
+      var banner = document.getElementById('capstone-banner-title');
+      var bannerEl = document.getElementById('capstone-editor-banner');
+      contextTitle = (banner && bannerEl && !bannerEl.classList.contains('hidden'))
+        ? 'Capstone: ' + banner.textContent.trim()
+        : 'Java Playground';
+    }
+  } else if (codingScreen && codingScreen.classList.contains('active')) {
+    var cdEd = document.getElementById('coding-editor');
+    if (cdEd && cdEd.value && cdEd.value.trim()) {
+      code = cdEd.value.trim();
+      var titleEl = document.getElementById('coding-task-title');
+      contextTitle = 'Coding Challenge' + (titleEl ? ': ' + titleEl.textContent.trim() : '');
+    }
+  } else {
+    var ed2 = document.getElementById('code-editor');
+    if (ed2 && ed2.value && ed2.value.trim()) {
+      code = ed2.value.trim();
+      contextTitle = 'Playground Code';
+    } else {
+      var cdEd2 = document.getElementById('coding-editor');
+      if (cdEd2 && cdEd2.value && cdEd2.value.trim()) {
+        code = cdEd2.value.trim();
+        contextTitle = 'Challenge Code';
+      }
+    }
+  }
+
+  var recentErr = '';
+  var outEl = document.getElementById('output-area');
+  if (outEl && outEl.textContent && !outEl.textContent.includes('Click ▶ Run Code')) {
+    var t = outEl.textContent.trim();
+    if (t) recentErr = t.substring(0, 350);
+  }
+
+  if (code) {
+    var snippet = code.length > 1400 ? code.substring(0, 1400) + '\n// ... [remaining code omitted]' : code;
+    return {
+      title: contextTitle || 'Code Editor',
+      code: snippet,
+      error: recentErr
+    };
+  }
+  return null;
+}
+
+function updateChatContextPill() {
+  var pill = document.getElementById('chat-context-pill');
+  var label = document.getElementById('chat-context-label');
+  if (!pill || !label) return;
+  var ctx = getCurrentUserCodeContext();
+  if (ctx && ctx.code) {
+    pill.classList.remove('hidden');
+    label.textContent = 'Watching ' + ctx.title;
+  } else {
+    pill.classList.add('hidden');
+  }
+}
+
 function toggleChat() {
   var panel = document.getElementById('chat-panel');
   if (!panel) return;
   if (panel.classList.contains('hidden')) {
     panel.classList.remove('hidden');
+    updateChatContextPill();
     var inp = document.getElementById('chat-input');
     if (inp) inp.focus();
     scrollChatToBottom();
@@ -40,6 +110,7 @@ function sendPromptToChat(promptText) {
   var panel = document.getElementById('chat-panel');
   if (panel && panel.classList.contains('hidden')) {
     panel.classList.remove('hidden');
+    updateChatContextPill();
   }
   var input = document.getElementById('chat-input');
   if (input) {
@@ -53,7 +124,7 @@ function clearChatHistory() {
   chatHistory = [];
   var container = document.getElementById('chat-messages');
   if (container) {
-    container.innerHTML = '<div class="chat-message bot"><div class="message-bubble">Hi! I\'m JavaBot 🤖 Ask me anything about Java! (History cleared to save tokens ⚡)</div></div>';
+    container.innerHTML = '<div class="chat-message bot"><div class="message-bubble">Hi! I\'m JavaBot 🤖 Ask me anything about Java or your code! (History cleared to save tokens ⚡)</div></div>';
   }
 }
 
@@ -84,8 +155,10 @@ function sendChatMessage() {
     return;
   }
 
+  // Update context pill
+  updateChatContextPill();
+
   // Add to history and prune to max 4 items (2 user questions + 2 bot replies)
-  // This slashes input token consumption by 80-90% on multi-turn conversations!
   chatHistory.push({ role: 'user', parts: [{ text: msg }] });
   if (chatHistory.length > 4) {
     chatHistory = chatHistory.slice(-4);
@@ -95,19 +168,28 @@ function sendChatMessage() {
   if (typing) typing.classList.remove('hidden');
   scrollChatToBottom();
 
+  var codeCtx = getCurrentUserCodeContext();
+  var dynamicSystem = AI_SYSTEM;
+  if (codeCtx && codeCtx.code) {
+    dynamicSystem += '\n\n[USER CURRENT WORKSPACE]\nActive Screen/Project: ' + codeCtx.title
+      + '\nUser\'s Exact Code in Editor:\n```java\n' + codeCtx.code + '\n```';
+    if (codeCtx.error) {
+      dynamicSystem += '\nRecent Compiler Output / Error:\n' + codeCtx.error;
+    }
+    dynamicSystem += '\n\nIMPORTANT: You have direct visibility into the user\'s editor code above. When they ask questions, reference their specific code, variables, and logic. If they ask for a code review or error explanation, point out issues clearly with small code tips under 70 words.';
+  }
+
   var payload = {
-    system_instruction: { parts: [{ text: AI_SYSTEM }] },
+    system_instruction: { parts: [{ text: dynamicSystem }] },
     contents: chatHistory,
-    // maxOutputTokens 160 ensures responses are concise (saving free-tier output tokens)
-    generationConfig: { maxOutputTokens: 160, temperature: 0.4 }
+    generationConfig: { maxOutputTokens: 200, temperature: 0.3 }
   };
 
-  // Try primary model (gemini-flash-lite-latest), fallback to gemini-3.5-flash-lite on failure
-  callGemini(PRIMARY_MODEL, apiKey, payload)
+  // Try primary model (gemini-3.5-flash-lite), fallback to gemini-flash-lite-latest
+  callGemini('gemini-3.5-flash-lite', apiKey, payload)
     .then(function(data){
       if (data.error && (data.error.code === 404 || data.error.code === 503)) {
-        // Fallback to secondary model
-        return callGemini(FALLBACK_MODEL, apiKey, payload);
+        return callGemini('gemini-flash-lite-latest', apiKey, payload);
       }
       return data;
     })

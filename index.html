@@ -347,6 +347,7 @@
       </div>
       <div class="capstone-banner-actions">
         <button class="btn-xs btn-outline-gold" id="capstone-view-checklist-btn">📋 Tasks & Feature Ideas</button>
+        <button class="btn-xs btn-outline-gold" id="capstone-reset-template-btn" title="Reset editor to starter skeleton">↺ Reset to Starter</button>
         <button class="btn-xs btn-primary-gold" id="capstone-save-code-btn">💾 Save Project Code</button>
       </div>
     </div>
@@ -581,12 +582,21 @@
         <button class="chat-close-btn" id="chat-close-btn">✕</button>
       </div>
     </div>
+    <div class="chat-context-pill hidden" id="chat-context-pill">
+      <span class="context-icon">👁️</span>
+      <span class="context-text" id="chat-context-label">Watching Code Editor</span>
+    </div>
     <div class="chat-messages" id="chat-messages">
-      <div class="chat-message bot"><div class="message-bubble">Hi! I'm JavaBot ☕🤖 Ask me anything about Java!</div></div>
+      <div class="chat-message bot"><div class="message-bubble">Hi! I'm JavaBot ☕🤖 Ask me anything about Java or your code!</div></div>
     </div>
     <div class="chat-typing-indicator hidden" id="chat-typing"><span></span><span></span><span></span></div>
+    <div class="chat-quick-chips" id="chat-quick-chips">
+      <button class="chat-chip" id="chip-review-code">🔍 Review My Code</button>
+      <button class="chat-chip" id="chip-explain-error">❓ Explain Error</button>
+      <button class="chat-chip" id="chip-next-step">💡 Hint for Next Step</button>
+    </div>
     <div class="chat-input-area">
-      <input type="text" id="chat-input" class="chat-input" placeholder="Ask about Java…"/>
+      <input type="text" id="chat-input" class="chat-input" placeholder="Ask JavaBot about your code…"/>
       <button class="chat-send-btn" id="chat-send-btn">➤</button>
     </div>
   </div>
