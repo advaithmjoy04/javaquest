@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
   <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src 'self' https://*.supabase.co https://emkc.org https://generativelanguage.googleapis.com; img-src 'self' data:;">
   <title>JavaQuest — Learn Java Like a Game</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700;800&family=Plus+Jakarta+Sans:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600&family=Press+Start+2P&display=swap" rel="stylesheet"/>
   <link rel="stylesheet" href="style.css"/>
 </head>
 <body>
@@ -39,31 +39,22 @@
 <section class="screen active" id="screen-auth">
   <div class="login-bg">
     <div class="login-card">
+      <div class="login-badge-pill">★ 100% FREE GAMIFIED CODING</div>
       <div class="login-logo-wrap">
         <span class="login-logo-icon">☕</span>
       </div>
-      <h1 class="login-title">Welcome to <span class="logo-accent">JavaQuest</span></h1>
-      <p class="login-subtitle">Master Java through games, challenges & AI tutoring</p>
+      <h1 class="login-title" id="auth-title">Create an account to save your progress :)</h1>
+      <p class="login-subtitle" id="auth-subtitle">Join thousands of questers learning Java from zero to hero!</p>
 
       <!-- Tab switcher -->
       <div class="auth-tabs">
-        <button class="auth-tab active" id="tab-signin">Sign In</button>
-        <button class="auth-tab"        id="tab-signup">Create Account</button>
+        <button class="auth-tab active" id="tab-signup">Create Account</button>
+        <button class="auth-tab"        id="tab-signin">Sign In</button>
       </div>
 
-      <!-- Sign-in form -->
-      <div class="auth-form" id="form-signin">
-        <input type="email"    id="si-email"    class="login-input" placeholder="your@email.com" autocomplete="email"/>
-        <input type="password" id="si-password" class="login-input" placeholder="Password" autocomplete="current-password"/>
-        <div class="auth-error hidden" id="si-error"></div>
-        <button class="btn-primary btn-login" id="si-btn">🔑 Sign In</button>
-        <div class="auth-divider"><span>or play without account</span></div>
-        <button type="button" class="btn-guest" id="guest-btn">🎮 Play as Guest (Local Mode)</button>
-      </div>
-
-      <!-- Sign-up form (hidden by default) -->
-      <div class="auth-form hidden" id="form-signup">
-        <input type="text"     id="su-name"     class="login-input" placeholder="Your hero name" maxlength="30" autocomplete="username"/>
+      <!-- Sign-up form (active by default to match codedex.io/signup) -->
+      <div class="auth-form" id="form-signup">
+        <input type="text"     id="su-name"     class="login-input" placeholder="Your hero name (e.g. PixelKnight)" maxlength="30" autocomplete="username"/>
         <input type="email"    id="su-email"    class="login-input" placeholder="your@email.com" autocomplete="email"/>
         <input type="password" id="su-password" class="login-input" placeholder="Password (min 6 chars)" autocomplete="new-password" minlength="6"/>
 
@@ -96,8 +87,20 @@
 
         <div class="auth-error hidden" id="su-error"></div>
         <button class="btn-primary btn-login" id="su-btn">🚀 Create Account & Play!</button>
+        <div class="auth-switch-prompt">Already have an account? <button type="button" class="btn-link" id="link-to-si">Sign In</button></div>
         <div class="auth-divider"><span>or play without account</span></div>
         <button type="button" class="btn-guest" id="guest-btn-su">🎮 Play as Guest (Local Mode)</button>
+      </div>
+
+      <!-- Sign-in form (hidden by default) -->
+      <div class="auth-form hidden" id="form-signin">
+        <input type="email"    id="si-email"    class="login-input" placeholder="your@email.com" autocomplete="email"/>
+        <input type="password" id="si-password" class="login-input" placeholder="Password" autocomplete="current-password"/>
+        <div class="auth-error hidden" id="si-error"></div>
+        <button class="btn-primary btn-login" id="si-btn">🔑 Sign In</button>
+        <div class="auth-switch-prompt">Don't have an account? <button type="button" class="btn-link" id="link-to-su">Create an account :)</button></div>
+        <div class="auth-divider"><span>or play without account</span></div>
+        <button type="button" class="btn-guest" id="guest-btn">🎮 Play as Guest (Local Mode)</button>
       </div>
 
       <div class="auth-loading hidden" id="auth-loading">

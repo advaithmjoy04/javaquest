@@ -186,16 +186,34 @@ function initAuthUI() {
   // Tab switching
   var tabSI = ge('tab-signin'), tabSU = ge('tab-signup');
   var formSI = ge('form-signin'), formSU = ge('form-signup');
-  if (tabSI) tabSI.addEventListener('click', function(){
-    tabSI.classList.add('active'); tabSU.classList.remove('active');
-    formSI.classList.remove('hidden'); formSU.classList.add('hidden');
+  var authTitle = ge('auth-title'), authSub = ge('auth-subtitle');
+
+  function setAuthMode(mode) {
+    if (mode === 'signup') {
+      if (tabSU) tabSU.classList.add('active');
+      if (tabSI) tabSI.classList.remove('active');
+      if (formSU) formSU.classList.remove('hidden');
+      if (formSI) formSI.classList.add('hidden');
+      if (authTitle) authTitle.innerHTML = 'Create an account to save your progress :)';
+      if (authSub) authSub.textContent = 'Join thousands of questers learning Java from zero to hero!';
+    } else {
+      if (tabSI) tabSI.classList.add('active');
+      if (tabSU) tabSU.classList.remove('active');
+      if (formSI) formSI.classList.remove('hidden');
+      if (formSU) formSU.classList.add('hidden');
+      if (authTitle) authTitle.innerHTML = 'Welcome back to <span class="logo-accent">JavaQuest</span>';
+      if (authSub) authSub.textContent = 'Sign in to continue your coding adventure :)';
+    }
     hideAuthError();
-  });
-  if (tabSU) tabSU.addEventListener('click', function(){
-    tabSU.classList.add('active'); tabSI.classList.remove('active');
-    formSU.classList.remove('hidden'); formSI.classList.add('hidden');
-    hideAuthError();
-  });
+  }
+
+  if (tabSI) tabSI.addEventListener('click', function(){ setAuthMode('signin'); });
+  if (tabSU) tabSU.addEventListener('click', function(){ setAuthMode('signup'); });
+
+  var linkToSI = ge('link-to-si');
+  if (linkToSI) linkToSI.addEventListener('click', function(){ setAuthMode('signin'); });
+  var linkToSU = ge('link-to-su');
+  if (linkToSU) linkToSU.addEventListener('click', function(){ setAuthMode('signup'); });
 
   // Enter key
   [ge('si-email'), ge('si-password')].forEach(function(el){
@@ -234,8 +252,21 @@ function doGuestLogin() {
 
 function showAuthLoading(show) {
   var l=ge('auth-loading'), fs=ge('form-signin'), fu=ge('form-signup');
-  if(show){ if(l)l.classList.remove('hidden'); if(fs)fs.classList.add('hidden'); if(fu)fu.classList.add('hidden'); }
-  else    { if(l)l.classList.add('hidden');    if(fs)fs.classList.remove('hidden'); if(fu)fu.classList.remove('hidden'); }
+  if(show){
+    if(l) l.classList.remove('hidden');
+    if(fs) fs.classList.add('hidden');
+    if(fu) fu.classList.add('hidden');
+  } else {
+    if(l) l.classList.add('hidden');
+    var tabSU = ge('tab-signup');
+    if (tabSU && tabSU.classList.contains('active')) {
+      if(fu) fu.classList.remove('hidden');
+      if(fs) fs.classList.add('hidden');
+    } else {
+      if(fs) fs.classList.remove('hidden');
+      if(fu) fu.classList.add('hidden');
+    }
+  }
 }
 
 function showAuthError(form, msg) {
