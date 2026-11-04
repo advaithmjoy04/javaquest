@@ -60,7 +60,16 @@ function sbSignIn(email, password) {
     method: 'POST',
     body: JSON.stringify({ email: email, password: password })
   }).then(function(data) {
-    if (data.access_token) { window._sbSession = data; sbPersistSession(data); }
+    if (data.access_token) {
+      if (!data.user) {
+        var jwt = decodeJwt(data.access_token);
+        if (jwt && jwt.sub) {
+          data.user = { id: jwt.sub, email: jwt.email, user_metadata: jwt.user_metadata || {} };
+        }
+      }
+      window._sbSession = data;
+      sbPersistSession(data);
+    }
     return data;
   });
 }
@@ -77,6 +86,20 @@ function sbSignOut() {
       'Authorization': 'Bearer ' + token
     }
   }).catch(function() {}); // ignore errors on logout
+}
+
+function decodeJwt(token) {
+  try {
+    var parts = token.split('.');
+    if (parts.length >= 2) {
+      var base64 = parts[1].replace(/-/g, '+').replace(/_/g, '/');
+      var jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
+        return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+      }).join(''));
+      return JSON.parse(jsonPayload);
+    }
+  } catch(e) {}
+  return null;
 }
 
 window._sbHashError = null;
@@ -107,11 +130,17 @@ function sbRestoreSession() {
         var tokenType = params.get('token_type') || 'bearer';
 
         if (accessToken) {
+          var jwt = decodeJwt(accessToken);
           var hashSession = {
             access_token: accessToken,
             refresh_token: refreshToken,
             expires_at: expiresIn ? Math.floor(Date.now() / 1000) + parseInt(expiresIn, 10) : null,
-            token_type: tokenType
+            token_type: tokenType,
+            user: jwt ? {
+              id: jwt.sub,
+              email: jwt.email,
+              user_metadata: jwt.user_metadata || {}
+            } : null
           };
           if (window.history && window.history.replaceState) {
             window.history.replaceState(null, '', window.location.pathname + window.location.search);
@@ -150,7 +179,16 @@ function sbRefreshSession() {
 }
 
 function sbCurrentUser() {
-  return window._sbSession ? window._sbSession.user : null;
+  if (!window._sbSession) return null;
+  if (window._sbSession.user) return window._sbSession.user;
+  if (window._sbSession.access_token) {
+    var jwt = decodeJwt(window._sbSession.access_token);
+    if (jwt && jwt.sub) {
+      window._sbSession.user = { id: jwt.sub, email: jwt.email, user_metadata: jwt.user_metadata || {} };
+      return window._sbSession.user;
+    }
+  }
+  return null;
 }
 
 // ═══════════════════════════════════════════════════════
